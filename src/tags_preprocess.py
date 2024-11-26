@@ -18,9 +18,16 @@ df = pd.read_csv(
     DATA_DIR_RELATIVE_PATH+DATASET_PATH,
     usecols=COLUMNS,
     sep="\t",
-    on_bad_lines='skip'
+    on_bad_lines='skip',
 ).dropna(subset=COLUMNS)  # Drop rows with any NaN
 
+df["origins_tags_split"] = df["origins_tags"].apply(lambda tags: [tag.strip()[3:] if ":" in tag else tag.strip() for tag in tags.split(',')])
 
-for country, count in df[~df["origins_tags"].isin(country_acronyms.get_all_elts())].value_counts("origins_tags").items():
-    print(f"\t\t\"{country}\",        {count}")
+df_explode_origins = df.explode("origins_tags_split")
+
+print(df_explode_origins.value_counts("origins_tags_split", dropna=False))
+
+# df_explode_origins.to_csv("./bar.csv", sep="\t")
+
+# for country, count in df[~df["origins_tags"].isin(country_acronyms.get_all_elts())].value_counts("origins_tags").items():
+#     print(f"\t\t\"{country}\",        {count}")
