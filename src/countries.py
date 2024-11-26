@@ -12,14 +12,14 @@ class Groups:
             for elt in elts:
                 self.elts_to_group[elt] = identifier
     
-    def get_group(self, elt):
+    def get_group(self, elt, default=None):
         if elt not in self.elts_to_group:
-            return None
+            return default
         return self.elts_to_group[elt]
     
-    def get_elts(self, group):
+    def get_elts(self, group, default=None):
         if group not in self.groups:
-            return None
+            return default
         return self.groups[group]
     
     def get_all_elts(self):
@@ -51,6 +51,7 @@ country_acronyms = Groups({
 
 	"American Samoa": [
 		"American Samoa", "american samoa", "AS", "ASM", "16", "ISO 3166-2:AS",
+        "american-samoa", 
 	],
 
 	"Andorra": [
@@ -285,7 +286,7 @@ country_acronyms = Groups({
 
 	"Czechia": [
 		"Czechia", "czechia", "CZ", "CZE", "203", "ISO 3166-2:CZ",
-        "czech-republic", "česka-republika"
+        "czech-republic", "česka-republika", "république-tchèque"
 	],
 
 	"Denmark": [
@@ -358,7 +359,7 @@ country_acronyms = Groups({
 
 	"France": [
 		"France", "france", "FR", "FRA", "250", "ISO 3166-2:FR",
-        "bretagne", "normandie", "isere", "vandee", "francia", "saint-philibert", "provence", "frankreich", "alsace", 
+        "bretagne", "normandie", "isere", "vandee", "francia", "saint-philibert", "provence", "frankreich", "alsace", "angle", "frankrijk", 
 	],
 
 	"French Guiana": [
@@ -474,6 +475,7 @@ country_acronyms = Groups({
 
 	"India": [
 		"India", "india", "IN", "IND", "356", "ISO 3166-2:IN",
+        "indian-subcontinent", 
 	],
 
 	"Indonesia": [
@@ -503,6 +505,7 @@ country_acronyms = Groups({
 
 	"Israel": [
 		"Israel", "israel", "IL", "ISR", "376", "ISO 3166-2:IL",
+        "ישראל", 
 	],
 
 	"Italy": [
@@ -558,6 +561,7 @@ country_acronyms = Groups({
 
 	"Lao People's Democratic Republic": [
 		"Lao People's Democratic Republic", "lao people's democratic republic", "LA", "LAO", "418", "ISO 3166-2:LA",
+        "laos", 
 	],
 
 	"Latvia": [
@@ -674,7 +678,7 @@ country_acronyms = Groups({
 
 	"Morocco": [
 		"Morocco", "morocco", "MA", "MAR", "504", "ISO 3166-2:MA",
-        "maroc", 
+        "maroc", "المغرب", 
 	],
 
 	"Mozambique": [
@@ -806,7 +810,7 @@ country_acronyms = Groups({
 
 	"Réunion": [
 		"Réunion", "reunion", "RE", "REU", "638", "ISO 3166-2:RE",
-        "france-la-reunion", 
+        "france-la-reunion", "la-reunion", 
 	],
 
 	"Romania": [
@@ -837,6 +841,7 @@ country_acronyms = Groups({
 
 	"Saint Lucia": [
 		"Saint Lucia", "saint lucia", "LC", "LCA", "662", "ISO 3166-2:LC",
+        "saint-lucia", 
 	],
 
 	"Saint Martin (French part)": [
@@ -851,6 +856,7 @@ country_acronyms = Groups({
 
 	"Saint Vincent and the Grenadines": [
 		"Saint Vincent and the Grenadines", "saint vincent and the grenadines", "VC", "VCT", "670", "ISO 3166-2:VC",
+        "saint-vincent-and-the-grenadines", 
 	],
 
 	"Samoa": [
@@ -859,6 +865,7 @@ country_acronyms = Groups({
 
 	"San Marino": [
 		"San Marino", "san marino", "SM", "SMR", "674", "ISO 3166-2:SM",
+        "san-marino", 
 	],
 
 	"Sao Tome and Principe": [
@@ -885,6 +892,7 @@ country_acronyms = Groups({
 
 	"Sierra Leone": [
 		"Sierra Leone", "sierra leone", "SL", "SLE", "694", "ISO 3166-2:SL",
+        "sierra-leone", 
 	],
 
 	"Singapore": [
@@ -971,6 +979,7 @@ country_acronyms = Groups({
 
 	"Tanzania, United Republic of": [
 		"Tanzania, United Republic of", "tanzania, united republic of", "TZ", "TZA", "834", "ISO 3166-2:TZ",
+        "tanzania", 
 	],
 
 	"Thailand": [
@@ -1101,11 +1110,119 @@ country_acronyms = Groups({
 })
 
 subregion_country = Groups({
-"Western Europe" : ["Austria", "Belgium", "France", "Germany", "Liechtenstein", "Luxembourg", "Monaco", "Switzerland"], "Africa" : ["Congo", "Saint Helena", "Tanzania"], "Central Asia" : ["Kazakhstan", "Kyrgyzstan", "Tajikistan", "Turkmenistan", "Uzbekistan"], "Northern Europe" : ["Åland Islands", "Denmark", "Estonia", "Faroe Islands", "Finland", "Guernsey", "Iceland", "Ireland", "Isle of Man", "Jersey", "Latvia", "Lithuania", "Norway", "Svalbard and Jan Mayen", "Sweden", "United Kingdom of Great Britain and Northern Ireland"], "Americas" : ["Bolivia", "Bonaire", "Venezuela"], "Sub-Saharan Africa" : ["Angola", "Benin", "Botswana", "British Indian Ocean Territory", "Burkina Faso", "Burundi", "Cabo Verde", "Cameroon", "Central African Republic", "Chad", "Comoros", "Congo", "Côte d'Ivoire", "Djibouti", "Equatorial Guinea", "Eritrea", "Eswatini", "Ethiopia", "French Southern Territories", "Gabon", "Gambia", "Ghana", "Guinea", "Guinea-Bissau", "Kenya", "Lesotho", "Liberia", "Madagascar", "Malawi", "Mali", "Mauritania", "Mauritius", "Mayotte", "Mozambique", "Namibia", "Niger", "Nigeria", "Réunion", "Rwanda", "Sao Tome and Principe", "Senegal", "Seychelles", "Sierra Leone", "Somalia", "South Africa", "South Sudan", "Togo", "Uganda", "Zambia", "Zimbabwe"], "Northern Africa" : ["Algeria", "Egypt", "Libya", "Morocco", "Sudan", "Tunisia", "Western Sahara"], "Polynesia" : ["American Samoa", "Cook Islands", "French Polynesia", "Niue", "Pitcairn", "Samoa", "Tokelau", "Tonga", "Tuvalu", "Wallis and Futuna"], "Melanesia" : ["Fiji", "New Caledonia", "Papua New Guinea", "Solomon Islands", "Vanuatu"], "Australia and New Zealand" : ["Australia", "Christmas Island", "Cocos (Keeling) Islands", "Heard Island and McDonald Islands", "New Zealand", "Norfolk Island"], "Oceania" : ["Micronesia"], "Eastern Asia" : ["China", "Hong Kong", "Japan", "Macao", "Mongolia"], "Western Asia" : ["Armenia", "Azerbaijan", "Bahrain", "Cyprus", "Georgia", "Iraq", "Israel", "Jordan", "Kuwait", "Lebanon", "Oman", "Qatar", "Saudi Arabia", "Syrian Arab Republic", "Türkiye", "United Arab Emirates", "Yemen"], "Southern Asia" : ["Afghanistan", "Bangladesh", "Bhutan", "India", "Maldives", "Nepal", "Pakistan", "Sri Lanka"], "Asia" : ["Iran", "Korea", "Korea", "Palestine"], "Latin America and the Caribbean" : ["Anguilla", "Antigua and Barbuda", "Argentina", "Aruba", "Bahamas", "Barbados", "Belize", "Bouvet Island", "Brazil", "Cayman Islands", "Chile", "Colombia", "Costa Rica", "Cuba", "Curaçao", "Dominica", "Dominican Republic", "Ecuador", "El Salvador", "Falkland Islands (Malvinas)", "French Guiana", "Grenada", "Guadeloupe", "Guatemala", "Guyana", "Haiti", "Honduras", "Jamaica", "Martinique", "Mexico", "Montserrat", "Nicaragua", "Panama", "Paraguay", "Peru", "Puerto Rico", "Saint Barthélemy", "Saint Kitts and Nevis", "Saint Lucia", "Saint Martin (French part)", "Saint Vincent and the Grenadines", "Sint Maarten (Dutch part)", "South Georgia and the South Sandwich Islands", "Suriname", "Trinidad and Tobago", "Turks and Caicos Islands", "Uruguay", "Virgin Islands (British)", "Virgin Islands (U.S.)"], "South-eastern Asia" : ["Brunei Darussalam", "Cambodia", "Indonesia", "Lao People's Democratic Republic", "Malaysia", "Myanmar", "Philippines", "Singapore", "Thailand", "Timor-Leste", "Viet Nam"], "Northern America" : ["Bermuda", "Canada", "Greenland", "Saint Pierre and Miquelon", "United States of America"], "Southern Europe" : ["Albania", "Andorra", "Bosnia and Herzegovina", "Croatia", "Gibraltar", "Greece", "Holy See", "Italy", "Malta", "Montenegro", "North Macedonia", "Portugal", "San Marino", "Serbia", "Slovenia", "Spain"], "Micronesia" : ["Guam", "Kiribati", "Marshall Islands", "Nauru", "Northern Mariana Islands", "Palau", "United States Minor Outlying Islands"], "Eastern Europe" : ["Belarus", "Bulgaria", "Czechia", "Hungary", "Poland", "Romania", "Russian Federation", "Slovakia", "Ukraine"], "Europe" : ["Moldova", "Netherlands"]
+	
+	"Western Europe" : [
+        "Austria", "Belgium", "France", "Germany", "Liechtenstein", "Luxembourg", "Monaco", "Switzerland"
+    ], 
+    
+	"Africa" : [
+        "Congo", "Saint Helena", "Tanzania"
+    ], 
+    
+	"Central Asia" : [
+        "Kazakhstan", "Kyrgyzstan", "Tajikistan", "Turkmenistan", "Uzbekistan"
+    ], 
+    
+	"Northern Europe" : [
+        "Åland Islands", "Denmark", "Estonia", "Faroe Islands", "Finland", "Guernsey", "Iceland", "Ireland", "Isle of Man", "Jersey", "Latvia", "Lithuania", "Norway", "Svalbard and Jan Mayen", "Sweden", "United Kingdom of Great Britain and Northern Ireland"
+    ], 
+    
+	"Americas" : [
+        "Bolivia", "Bonaire", "Venezuela"
+    ], 
+    
+	"Sub-Saharan Africa" : [
+        "Angola", "Benin", "Botswana", "British Indian Ocean Territory", "Burkina Faso", "Burundi", "Cabo Verde", "Cameroon", "Central African Republic", "Chad", "Comoros", "Congo", "Côte d'Ivoire", "Djibouti", "Equatorial Guinea", "Eritrea", "Eswatini", "Ethiopia", "French Southern Territories", "Gabon", "Gambia", "Ghana", "Guinea", "Guinea-Bissau", "Kenya", "Lesotho", "Liberia", "Madagascar", "Malawi", "Mali", "Mauritania", "Mauritius", "Mayotte", "Mozambique", "Namibia", "Niger", "Nigeria", "Réunion", "Rwanda", "Sao Tome and Principe", "Senegal", "Seychelles", "Sierra Leone", "Somalia", "South Africa", "South Sudan", "Togo", "Uganda", "Zambia", "Zimbabwe"
+    ], 
+    
+	"Northern Africa" : [
+        "Algeria", "Egypt", "Libya", "Morocco", "Sudan", "Tunisia", "Western Sahara"
+    ], 
+    
+	"Polynesia" : [
+        "American Samoa", "Cook Islands", "French Polynesia", "Niue", "Pitcairn", "Samoa", "Tokelau", "Tonga", "Tuvalu", "Wallis and Futuna"
+    ], 
+    
+	"Melanesia" : [
+        "Fiji", "New Caledonia", "Papua New Guinea", "Solomon Islands", "Vanuatu"
+    ], 
+    
+	"Australia and New Zealand" : [
+        "Australia", "Christmas Island", "Cocos (Keeling) Islands", "Heard Island and McDonald Islands", "New Zealand", "Norfolk Island"
+    ], 
+    
+	"Oceania" : [
+        "Micronesia"
+    
+	], 
+    
+	"Eastern Asia" : [
+        "China", "Hong Kong", "Japan", "Macao", "Mongolia"
+    ], 
+    
+	"Western Asia" : [
+        "Armenia", "Azerbaijan", "Bahrain", "Cyprus", "Georgia", "Iraq", "Israel", "Jordan", "Kuwait", "Lebanon", "Oman", "Qatar", "Saudi Arabia", "Syrian Arab Republic", "Türkiye", "United Arab Emirates", "Yemen"
+    ], 
+    
+	"Southern Asia" : [
+        "Afghanistan", "Bangladesh", "Bhutan", "India", "Maldives", "Nepal", "Pakistan", "Sri Lanka"
+    ], 
+    
+	"Asia" : [
+        "Iran", "Korea", "Korea", "Palestine"
+    ], 
+    
+	"Latin America and the Caribbean" : [
+        "Anguilla", "Antigua and Barbuda", "Argentina", "Aruba", "Bahamas", "Barbados", "Belize", "Bouvet Island", "Brazil", "Cayman Islands", "Chile", "Colombia", "Costa Rica", "Cuba", "Curaçao", "Dominica", "Dominican Republic", "Ecuador", "El Salvador", "Falkland Islands (Malvinas)", "French Guiana", "Grenada", "Guadeloupe", "Guatemala", "Guyana", "Haiti", "Honduras", "Jamaica", "Martinique", "Mexico", "Montserrat", "Nicaragua", "Panama", "Paraguay", "Peru", "Puerto Rico", "Saint Barthélemy", "Saint Kitts and Nevis", "Saint Lucia", "Saint Martin (French part)", "Saint Vincent and the Grenadines", "Sint Maarten (Dutch part)", "South Georgia and the South Sandwich Islands", "Suriname", "Trinidad and Tobago", "Turks and Caicos Islands", "Uruguay", "Virgin Islands (British)", "Virgin Islands (U.S.)"
+    ], 
+    
+	"South-eastern Asia" : [
+        "Brunei Darussalam", "Cambodia", "Indonesia", "Lao People's Democratic Republic", "Malaysia", "Myanmar", "Philippines", "Singapore", "Thailand", "Timor-Leste", "Viet Nam"
+    ], 
+    
+	"Northern America" : [
+        "Bermuda", "Canada", "Greenland", "Saint Pierre and Miquelon", "United States of America"
+    ], 
+    
+	"Southern Europe" : [
+        "Albania", "Andorra", "Bosnia and Herzegovina", "Croatia", "Gibraltar", "Greece", "Holy See", "Italy", "Malta", "Montenegro", "North Macedonia", "Portugal", "San Marino", "Serbia", "Slovenia", "Spain"
+    
+	], 
+    
+	"Micronesia" : [
+        "Guam", "Kiribati", "Marshall Islands", "Nauru", "Northern Mariana Islands", "Palau", "United States Minor Outlying Islands"
+    ], 
+    
+	"Eastern Europe" : [
+        "Belarus", "Bulgaria", "Czechia", "Hungary", "Poland", "Romania", "Russian Federation", "Slovakia", "Ukraine"
+    ], 
+    
+	"Europe" : [
+        "Moldova", "Netherlands"
+    ]
+
 })
 
 region_country = Groups({
-    "Africa" : ["Algeria", "Angola", "Benin", "Botswana", "British Indian Ocean Territory", "Burkina Faso", "Burundi", "Cabo Verde", "Cameroon", "Central African Republic", "Chad", "Comoros", "Congo", "Côte d'Ivoire", "Djibouti", "Egypt", "Equatorial Guinea", "Eritrea", "Eswatini", "Ethiopia", "French Southern Territories", "Gabon", "Gambia", "Ghana", "Guinea", "Guinea-Bissau", "Kenya", "Lesotho", "Liberia", "Libya", "Madagascar", "Malawi", "Mali", "Mauritania", "Mauritius", "Mayotte", "Morocco", "Mozambique", "Namibia", "Niger", "Nigeria", "Réunion", "Rwanda", "Sao Tome and Principe", "Senegal", "Seychelles", "Sierra Leone", "Somalia", "South Africa", "South Sudan", "Sudan", "Togo", "Tunisia", "Uganda", "Western Sahara", "Zambia", "Zimbabwe"], "Americas" : ["Anguilla", "Antigua and Barbuda", "Argentina", "Aruba", "Bahamas", "Barbados", "Belize", "Bermuda", "Bouvet Island", "Brazil", "Canada", "Cayman Islands", "Chile", "Colombia", "Costa Rica", "Cuba", "Curaçao", "Dominica", "Dominican Republic", "Ecuador", "El Salvador", "Falkland Islands (Malvinas)", "French Guiana", "Greenland", "Grenada", "Guadeloupe", "Guatemala", "Guyana", "Haiti", "Honduras", "Jamaica", "Martinique", "Mexico", "Montserrat", "Nicaragua", "Panama", "Paraguay", "Peru", "Puerto Rico", "Saint Barthélemy", "Saint Kitts and Nevis", "Saint Lucia", "Saint Martin (French part)", "Saint Pierre and Miquelon", "Saint Vincent and the Grenadines", "Sint Maarten (Dutch part)", "South Georgia and the South Sandwich Islands", "Suriname", "Trinidad and Tobago", "Turks and Caicos Islands", "United States of America", "Uruguay", "Venezuela", "Virgin Islands (British)", "Virgin Islands (U.S.)"], "Oceania" : ["American Samoa", "Australia", "Christmas Island", "Cocos (Keeling) Islands", "Cook Islands", "Fiji", "French Polynesia", "Guam", "Heard Island and McDonald Islands", "Kiribati", "Marshall Islands", "Nauru", "New Caledonia", "New Zealand", "Niue", "Norfolk Island", "Northern Mariana Islands", "Palau", "Papua New Guinea", "Pitcairn", "Samoa", "Solomon Islands", "Tokelau", "Tonga", "Tuvalu", "United States Minor Outlying Islands", "Vanuatu", "Wallis and Futuna"], "Asia" : ["Afghanistan", "Armenia", "Azerbaijan", "Bahrain", "Bangladesh", "Bhutan", "Brunei Darussalam", "Cambodia", "China", "Cyprus", "Georgia", "Hong Kong", "India", "Indonesia", "Iraq", "Israel", "Japan", "Jordan", "Kazakhstan", "Kuwait", "Kyrgyzstan", "Lao People's Democratic Republic", "Lebanon", "Macao", "Malaysia", "Maldives", "Mongolia", "Myanmar", "Nepal", "Oman", "Pakistan", "Philippines", "Qatar", "Saudi Arabia", "Singapore", "Sri Lanka", "Syrian Arab Republic", "Tajikistan", "Thailand", "Timor-Leste", "Türkiye", "Turkmenistan", "United Arab Emirates", "Uzbekistan", "Viet Nam", "Yemen"], "Europe" : ["Åland Islands", "Albania", "Andorra", "Austria", "Belarus", "Belgium", "Bosnia and Herzegovina", "Bulgaria", "Croatia", "Czechia", "Denmark", "Estonia", "Faroe Islands", "Finland", "France", "Germany", "Gibraltar", "Greece", "Guernsey", "Holy See", "Hungary", "Iceland", "Ireland", "Isle of Man", "Italy", "Jersey", "Latvia", "Liechtenstein", "Lithuania", "Luxembourg", "Malta", "Monaco", "Montenegro", "North Macedonia", "Norway", "Poland", "Portugal", "Romania", "Russian Federation", "San Marino", "Serbia", "Slovakia", "Slovenia", "Spain", "Svalbard and Jan Mayen", "Sweden", "Switzerland", "Ukraine", "United Kingdom of Great Britain and Northern Ireland"]
+    "Africa" : [
+        "Algeria", "Angola", "Benin", "Botswana", "British Indian Ocean Territory", "Burkina Faso", "Burundi", "Cabo Verde", "Cameroon", "Central African Republic", "Chad", "Comoros", "Congo", "Côte d'Ivoire", "Djibouti", "Egypt", "Equatorial Guinea", "Eritrea", "Eswatini", "Ethiopia", "French Southern Territories", "Gabon", "Gambia", "Ghana", "Guinea", "Guinea-Bissau", "Kenya", "Lesotho", "Liberia", "Libya", "Madagascar", "Malawi", "Mali", "Mauritania", "Mauritius", "Mayotte", "Morocco", "Mozambique", "Namibia", "Niger", "Nigeria", "Réunion", "Rwanda", "Sao Tome and Principe", "Senegal", "Seychelles", "Sierra Leone", "Somalia", "South Africa", "South Sudan", "Sudan", "Togo", "Tunisia", "Uganda", "Western Sahara", "Zambia", "Zimbabwe"
+    ], 
+    
+	"Americas" : [
+        "Anguilla", "Antigua and Barbuda", "Argentina", "Aruba", "Bahamas", "Barbados", "Belize", "Bermuda", "Bouvet Island", "Brazil", "Canada", "Cayman Islands", "Chile", "Colombia", "Costa Rica", "Cuba", "Curaçao", "Dominica", "Dominican Republic", "Ecuador", "El Salvador", "Falkland Islands (Malvinas)", "French Guiana", "Greenland", "Grenada", "Guadeloupe", "Guatemala", "Guyana", "Haiti", "Honduras", "Jamaica", "Martinique", "Mexico", "Montserrat", "Nicaragua", "Panama", "Paraguay", "Peru", "Puerto Rico", "Saint Barthélemy", "Saint Kitts and Nevis", "Saint Lucia", "Saint Martin (French part)", "Saint Pierre and Miquelon", "Saint Vincent and the Grenadines", "Sint Maarten (Dutch part)", "South Georgia and the South Sandwich Islands", "Suriname", "Trinidad and Tobago", "Turks and Caicos Islands", "United States of America", "Uruguay", "Venezuela", "Virgin Islands (British)", "Virgin Islands (U.S.)"
+    ], 
+    
+	"Oceania" : [
+        "American Samoa", "Australia", "Christmas Island", "Cocos (Keeling) Islands", "Cook Islands", "Fiji", "French Polynesia", "Guam", "Heard Island and McDonald Islands", "Kiribati", "Marshall Islands", "Nauru", "New Caledonia", "New Zealand", "Niue", "Norfolk Island", "Northern Mariana Islands", "Palau", "Papua New Guinea", "Pitcairn", "Samoa", "Solomon Islands", "Tokelau", "Tonga", "Tuvalu", "United States Minor Outlying Islands", "Vanuatu", "Wallis and Futuna"
+    ], 
+    
+	"Asia" : [
+        "Afghanistan", "Armenia", "Azerbaijan", "Bahrain", "Bangladesh", "Bhutan", "Brunei Darussalam", "Cambodia", "China", "Cyprus", "Georgia", "Hong Kong", "India", "Indonesia", "Iraq", "Israel", "Japan", "Jordan", "Kazakhstan", "Kuwait", "Kyrgyzstan", "Lao People's Democratic Republic", "Lebanon", "Macao", "Malaysia", "Maldives", "Mongolia", "Myanmar", "Nepal", "Oman", "Pakistan", "Philippines", "Qatar", "Saudi Arabia", "Singapore", "Sri Lanka", "Syrian Arab Republic", "Tajikistan", "Thailand", "Timor-Leste", "Türkiye", "Turkmenistan", "United Arab Emirates", "Uzbekistan", "Viet Nam", "Yemen"
+    ], 
+    
+	"Europe" : [
+        "Åland Islands", "Albania", "Andorra", "Austria", "Belarus", "Belgium", "Bosnia and Herzegovina", "Bulgaria", "Croatia", "Czechia", "Denmark", "Estonia", "Faroe Islands", "Finland", "France", "Germany", "Gibraltar", "Greece", "Guernsey", "Holy See", "Hungary", "Iceland", "Ireland", "Isle of Man", "Italy", "Jersey", "Latvia", "Liechtenstein", "Lithuania", "Luxembourg", "Malta", "Monaco", "Montenegro", "North Macedonia", "Norway", "Poland", "Portugal", "Romania", "Russian Federation", "San Marino", "Serbia", "Slovakia", "Slovenia", "Spain", "Svalbard and Jan Mayen", "Sweden", "Switzerland", "Ukraine", "United Kingdom of Great Britain and Northern Ireland"
+    ]
 })
 
 
