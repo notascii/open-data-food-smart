@@ -37,6 +37,7 @@ country_acronyms = Groups({
 
 	"Åland Islands": [
 		"Åland Islands", "aland islands", "AX", "ALA", "248", "ISO 3166-2:AX",
+        "aland-islands", 
 	],
 
 	"Albania": [
@@ -90,7 +91,7 @@ country_acronyms = Groups({
 
 	"Austria": [
 		"Austria", "austria", "AT", "AUT", "40", "ISO 3166-2:AT",
-        "osterreich", 
+        "osterreich", "autriche", 
 	],
 
 	"Azerbaijan": [
@@ -119,7 +120,7 @@ country_acronyms = Groups({
 
 	"Belgium": [
 		"Belgium", "belgium", "BE", "BEL", "56", "ISO 3166-2:BE",
-        "belgique", "belgien", 
+        "belgique", "belgien", "belgie", "belgica", 
 	],
 
 	"Belize": [
@@ -149,6 +150,7 @@ country_acronyms = Groups({
 
 	"Bosnia and Herzegovina": [
 		"Bosnia and Herzegovina", "bosnia and herzegovina", "BA", "BIH", "70", "ISO 3166-2:BA",
+        "bosnia-and-herzegovina", 
 	],
 
 	"Botswana": [
@@ -170,6 +172,7 @@ country_acronyms = Groups({
 
 	"Brunei Darussalam": [
 		"Brunei Darussalam", "brunei darussalam", "BN", "BRN", "96", "ISO 3166-2:BN",
+        "brunei", 
 	],
 
 	"Bulgaria": [
@@ -178,6 +181,7 @@ country_acronyms = Groups({
 
 	"Burkina Faso": [
 		"Burkina Faso", "burkina faso", "BF", "BFA", "854", "ISO 3166-2:BF",
+        "burkina-faso", 
 	],
 
 	"Burundi": [
@@ -186,7 +190,7 @@ country_acronyms = Groups({
 
 	"Cabo Verde": [
 		"Cabo Verde", "cabo verde", "CV", "CPV", "132", "ISO 3166-2:CV",
-        "vendee", 
+        "cape-verde",
 	],
 
 	"Cambodia": [
@@ -199,6 +203,7 @@ country_acronyms = Groups({
 
 	"Canada": [
 		"Canada", "canada", "CA", "CAN", "124", "ISO 3166-2:CA",
+        "quebec", 
 	],
 
 	"Cayman Islands": [
@@ -245,6 +250,7 @@ country_acronyms = Groups({
 
 	"Congo, Democratic Republic of the": [
 		"Congo, Democratic Republic of the", "congo, democratic republic of the", "CD", "COD", "180", "ISO 3166-2:CD",
+        "democratic-republic-of-the-congo", "republic-of-the-congo", 
 	],
 
 	"Cook Islands": [
@@ -297,6 +303,7 @@ country_acronyms = Groups({
 
 	"Dominican Republic": [
 		"Dominican Republic", "dominican republic", "DO", "DOM", "214", "ISO 3166-2:DO",
+        "dominican-republic", 
 	],
 
 	"Ecuador": [
@@ -309,6 +316,7 @@ country_acronyms = Groups({
 
 	"El Salvador": [
 		"El Salvador", "el salvador", "SV", "SLV", "222", "ISO 3166-2:SV",
+        "el-salvador", 
 	],
 
 	"Equatorial Guinea": [
@@ -359,6 +367,7 @@ country_acronyms = Groups({
 
 	"French Polynesia": [
 		"French Polynesia", "french polynesia", "PF", "PYF", "258", "ISO 3166-2:PF",
+        "french-polynesia", 
 	],
 
 	"French Southern Territories": [
@@ -392,7 +401,7 @@ country_acronyms = Groups({
 
 	"Greece": [
 		"Greece", "greece", "GR", "GRC", "300", "ISO 3166-2:GR",
-        "grece", 
+        "grece", "ελλάδα", 
 	],
 
 	"Greenland": [
@@ -430,7 +439,7 @@ country_acronyms = Groups({
 
 	"Guyana": [
 		"Guyana", "guyana", "GY", "GUY", "328", "ISO 3166-2:GY",
-        "guyane", 
+        "guyane", "french-guiana", 
 	],
 
 	"Haiti": [
@@ -451,6 +460,7 @@ country_acronyms = Groups({
 
 	"Hong Kong": [
 		"Hong Kong", "hong kong", "HK", "HKG", "344", "ISO 3166-2:HK",
+        "hong-kong", 
 	],
 
 	"Hungary": [
@@ -468,22 +478,27 @@ country_acronyms = Groups({
 
 	"Indonesia": [
 		"Indonesia", "indonesia", "ID", "IDN", "360", "ISO 3166-2:ID",
+        "indonesie", 
 	],
 
 	"Iran, Islamic Republic of": [
 		"Iran, Islamic Republic of", "iran, islamic republic of", "IR", "IRN", "364", "ISO 3166-2:IR",
+        "iran", 
 	],
 
 	"Iraq": [
 		"Iraq", "iraq", "IQ", "IRQ", "368", "ISO 3166-2:IQ",
+        "iraqi-kurdistan", 
 	],
 
 	"Ireland": [
 		"Ireland", "ireland", "IE", "IRL", "372", "ISO 3166-2:IE",
+        "irlande", 
 	],
 
 	"Isle of Man": [
 		"Isle of Man", "isle of man", "IM", "IMN", "833", "ISO 3166-2:IM",
+        "isle-of-man", 
 	],
 
 	"Israel": [
@@ -526,6 +541,7 @@ country_acronyms = Groups({
 
 	"Korea, Democratic People's Republic of": [
 		"Korea, Democratic People's Republic of", "korea, democratic people's republic of", "KP", "PRK", "408", "ISO 3166-2:KP",
+        "south-korea", 
 	],
 
 	"Korea, Republic of": [
@@ -550,6 +566,7 @@ country_acronyms = Groups({
 
 	"Lebanon": [
 		"Lebanon", "lebanon", "LB", "LBN", "422", "ISO 3166-2:LB",
+        "liban", 
 	],
 
 	"Lesotho": [
@@ -627,7 +644,7 @@ country_acronyms = Groups({
 
 	"Mexico": [
 		"Mexico", "mexico", "MX", "MEX", "484", "ISO 3166-2:MX",
-        "ciudad-de-mexico", "estado-de-mexico", "guanajuato", "jalisco", "cdmx", "durango", 
+        "ciudad-de-mexico", "estado-de-mexico", "guanajuato", "jalisco", "cdmx", "durango", "mexique" 
 	],
 
 	"Micronesia, Federated States of": [
@@ -636,6 +653,7 @@ country_acronyms = Groups({
 
 	"Moldova, Republic of": [
 		"Moldova, Republic of", "moldova, republic of", "MD", "MDA", "498", "ISO 3166-2:MD",
+        "moldova", 
 	],
 
 	"Monaco": [
@@ -686,6 +704,7 @@ country_acronyms = Groups({
 
 	"New Caledonia": [
 		"New Caledonia", "new caledonia", "NC", "NCL", "540", "ISO 3166-2:NC",
+        "new-caledonia", 
 	],
 
 	"New Zealand": [
@@ -715,6 +734,7 @@ country_acronyms = Groups({
 
 	"North Macedonia": [
 		"North Macedonia", "north macedonia", "MK", "MKD", "807", "ISO 3166-2:MK",
+        "north-macedonia", "republic-of-macedonia", 
 	],
 
 	"Northern Mariana Islands": [
@@ -777,6 +797,7 @@ country_acronyms = Groups({
 
 	"Puerto Rico": [
 		"Puerto Rico", "puerto rico", "PR", "PRI", "630", "ISO 3166-2:PR",
+        "puerto-rico", 
 	],
 
 	"Qatar": [
@@ -785,6 +806,7 @@ country_acronyms = Groups({
 
 	"Réunion": [
 		"Réunion", "reunion", "RE", "REU", "638", "ISO 3166-2:RE",
+        "france-la-reunion", 
 	],
 
 	"Romania": [
@@ -793,6 +815,7 @@ country_acronyms = Groups({
 
 	"Russian Federation": [
 		"Russian Federation", "russian federation", "RU", "RUS", "643", "ISO 3166-2:RU",
+        "russia", 
 	],
 
 	"Rwanda": [
@@ -809,6 +832,7 @@ country_acronyms = Groups({
 
 	"Saint Kitts and Nevis": [
 		"Saint Kitts and Nevis", "saint kitts and nevis", "KN", "KNA", "659", "ISO 3166-2:KN",
+        "saint-kitts-and-nevis", 
 	],
 
 	"Saint Lucia": [
@@ -817,10 +841,12 @@ country_acronyms = Groups({
 
 	"Saint Martin (French part)": [
 		"Saint Martin (French part)", "saint martin (french part)", "MF", "MAF", "663", "ISO 3166-2:MF",
+        "saint-martin", 
 	],
 
 	"Saint Pierre and Miquelon": [
 		"Saint Pierre and Miquelon", "saint pierre and miquelon", "PM", "SPM", "666", "ISO 3166-2:PM",
+        "saint-pierre-and-miquelon", 
 	],
 
 	"Saint Vincent and the Grenadines": [
@@ -841,6 +867,7 @@ country_acronyms = Groups({
 
 	"Saudi Arabia": [
 		"Saudi Arabia", "saudi arabia", "SA", "SAU", "682", "ISO 3166-2:SA",
+        "saudi-arabia", 
 	],
 
 	"Senegal": [
@@ -849,6 +876,7 @@ country_acronyms = Groups({
 
 	"Serbia": [
 		"Serbia", "serbia", "RS", "SRB", "688", "ISO 3166-2:RS",
+        "kosovo", 
 	],
 
 	"Seychelles": [
@@ -898,7 +926,7 @@ country_acronyms = Groups({
 
 	"Spain": [
 		"Spain", "spain", "ES", "ESP", "724", "ISO 3166-2:ES",
-        "espagne", "espana", "spanien"
+        "espagne", "espana", "spanien", "cantabria", "santona"
 	],
 
 	"Sri Lanka": [
@@ -925,7 +953,7 @@ country_acronyms = Groups({
 
 	"Switzerland": [
 		"Switzerland", "switzerland", "CH", "CHE", "756", "ISO 3166-2:CH",
-        "suisse", "schweiz"
+        "suisse", "schweiz", "suiza"
 	],
 
 	"Syrian Arab Republic": [
@@ -968,6 +996,7 @@ country_acronyms = Groups({
 
 	"Trinidad and Tobago": [
 		"Trinidad and Tobago", "trinidad and tobago", "TT", "TTO", "780", "ISO 3166-2:TT",
+        "trinidad-and-tobago", 
 	],
 
 	"Tunisia": [
@@ -1002,12 +1031,12 @@ country_acronyms = Groups({
 
 	"United Arab Emirates": [
 		"United Arab Emirates", "united arab emirates", "AE", "ARE", "784", "ISO 3166-2:AE",
-        "united-arab-emirates", 
+        "united-arab-emirates", "emirats-arabes-unis", 
 	],
 
 	"United Kingdom of Great Britain and Northern Ireland": [
 		"United Kingdom of Great Britain and Northern Ireland", "united kingdom of great britain and northern ireland", "GB", "GBR", "826", "ISO 3166-2:GB",
-        "united-kingdom", "royaume-uni", "uk", "UK"
+        "united-kingdom", "royaume-uni", "uk", "UK", "angleterre", "scotland", "england", 
 	],
 
 	"United States of America": [
@@ -1033,6 +1062,7 @@ country_acronyms = Groups({
 
 	"Venezuela, Bolivarian Republic of": [
 		"Venezuela, Bolivarian Republic of", "venezuela, bolivarian republic of", "VE", "VEN", "862", "ISO 3166-2:VE",
+        "venezuela", 
 	],
 
 	"Viet Nam": [
