@@ -81,7 +81,7 @@ def filter_out_rows_without_standard(
 
 
 def main():
-    df = read_csv_and_drop_na(nrows=10**4)
+    df = read_csv_and_drop_na(nrows=None)
 
     columns_to_work = ["origins_tags", "manufacturing_places_tags", "countries_tags"]
     for col in columns_to_work:
@@ -106,6 +106,12 @@ def main():
             "countries_tags_std",
         ],
         index=False,
+    )
+
+    filtered_df[["product_name", "origins_tags_std", "manufacturing_places_tags_std", "countries_tags_std"]].to_json(
+        DATA_DIR_RELATIVE_PATH + "cleaned_data_v2.json",
+        orient="records",
+        indent=4,
     )
 
     # def count_tags(tags_l):

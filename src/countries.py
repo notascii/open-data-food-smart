@@ -1,3 +1,5 @@
+import json
+
 class Groups:
     groups = {}
     elts_to_group = {}
@@ -24,9 +26,15 @@ class Groups:
     
     def get_all_elts(self):
         return self.elts_to_group.keys()
-    
+     
     def get_groups_name(self):
         return self.groups.keys()
+
+    def get_dict_groups_to_elts(self):
+        return self.groups
+    
+    def get_dict_elts_to_groups(self):
+        return self.elts_to_group
     
 
 country_acronyms = Groups({
@@ -1263,3 +1271,66 @@ region_country = Groups({
 })
 
 
+region_subregion = Groups({
+    "Africa" : [
+		"Africa",
+    	"Sub-Saharan Africa",
+         "Northern Africa",
+	], 
+    
+	"Americas" : [
+		"Americas",
+        "Latin America and the Caribbean",
+        "Northern America",
+	], 
+    
+	"Oceania" : [
+		"Polynesia",
+        "Melanesia",
+        "Australia and New Zealand",
+        "Oceania",
+        "Micronesia",
+	], 
+    
+	"Asia" : [
+		"Central Asia",
+        "Eastern Asia",
+        "Western Asia",
+        "Southern Asia",
+        "Asia",
+        "South-eastern Asia",
+	], 
+    
+	"Europe" : [
+		"Western Europe",
+        "Northern Europe",
+        "Southern Europe",
+        "Eastern Europe",
+        "Europe",
+	]
+})
+
+
+def __main__():
+	with open("../data/regions_to_countries_table.json", "w") as json_file:
+		json.dump(region_country.get_dict_groups_to_elts(), json_file, indent=4)
+    
+	with open("../data/countries_to_regions_table.json", "w") as json_file:
+		json.dump(region_country.get_dict_elts_to_groups(), json_file, indent=4)
+
+	with open("../data/subregions_to_countries_table.json", "w") as json_file:
+		json.dump(subregion_country.get_dict_groups_to_elts(), json_file, indent=4)
+    
+	with open("../data/countries_to_subregions_table.json", "w") as json_file:
+		json.dump(subregion_country.get_dict_elts_to_groups(), json_file, indent=4)
+          
+	with open("../data/regions_to_subregions_table.json", "w") as json_file:
+		json.dump(region_subregion.get_dict_groups_to_elts(), json_file, indent=4)
+    
+	with open("../data/subregions_to_regions_table.json", "w") as json_file:
+		json.dump(region_subregion.get_dict_elts_to_groups(), json_file, indent=4)
+
+	return
+
+if __name__ == "__main__":
+    __main__()
