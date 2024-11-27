@@ -41,8 +41,7 @@
   <body>
     <h1>Sankey Diagram - Open Food Facts</h1>
     <div id="sankey-container"></div>
-    <script src="" type="text/javascript"></script>
-    <script src="" type="text/javascript"></script>
+    <script src="./clean_data_v2.js" type="text/javascript"></script>
     <script>
       // Set up the SVG container
       const width = 960;
@@ -88,12 +87,10 @@
           let oNodesOfProduct = [];
           let mNodesOfProduct = [];
 
-          if (product.origins) {
-            const origins = product.origins.split(",");
-
-            origins.forEach((origin) => {
+          if (product.origins_tags_std) {
+            product.origins_tags_std.forEach((origin) => {
               const originsNode = addNode(origin, "origin");
-              if (originsNode !== null) {
+              /*    if (originsNode !== null) {
                 oNodesOfProduct.push(originsNode);
                 links.push({
                   source: productNode,
@@ -101,26 +98,11 @@
                   value: 1,
                   type: "origin",
                 });
-              }
+              } */
             });
-          } else {
-            const originsNode = addNode(product.origins, "origin");
-            if (originsNode !== null) {
-              oNodesOfProduct.push(originsNode);
-              links.push({
-                source: productNode,
-                target: originsNode,
-                value: 1,
-                type: "origin",
-              });
-            }
           }
-
-          if (product.manufacturing_places) {
-            const manufacturing_places =
-              product.manufacturing_places.split(",");
-
-            manufacturing_places.forEach((manuPlace) => {
+          if (product.manufacturing_places_tags_std) {
+            product.manufacturing_places_tags_std.forEach((manuPlace) => {
               const manuPlaceNode = addNode(manuPlace, "manufacturing_place");
               if (manuPlaceNode !== null) {
                 mNodesOfProduct.push(manuPlaceNode);
@@ -134,26 +116,10 @@
                 }
               }
             });
-          } else {
-            const manuPlaceNode = addNode(
-              product.manufacturing_places,
-              "manufacturing_place",
-            );
-            mNodesOfProduct.push(manuPlaceNode);
-            for (let origin of oNodesOfProduct) {
-              links.push({
-                source: origin,
-                target: manuPlaceNode,
-                value: 1,
-                type: "manufacturing",
-              });
-            }
           }
 
-          if (product.countries) {
-            const countries = product.countries.split(",");
-
-            countries.forEach((country) => {
+          if (product.countries_tags_std) {
+            product.countries_tags_std.forEach((country) => {
               const countryNode = addNode(country, "country");
               if (countryNode !== null) {
                 for (let manufacturing_place of mNodesOfProduct) {
