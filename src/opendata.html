@@ -62,150 +62,182 @@
           [width - 1, height - 1],
         ]);
 
-      {
-        const nodes = [];
-        const links = [];
-        const nodeIndexMap = new Map();
+    
+      let nodeIndex = 0;
+      let nodes = [];
+      const nodeIndexMap = new Map();
 
-        // Helper function to add nodes and create a unique index for each
-        function addNode(name, type) {
-          const uniqueName = `${type}: ${name}`;
-          console.log(`Adding node : ${uniqueName}`);
-          if (!nodeIndexMap.has(uniqueName)) {
-            const index = nodes.length;
-            nodes.push({ name: name, type: type });
-            nodeIndexMap.set(uniqueName, index);
-          }
-          return nodeIndexMap.get(uniqueName);
+      function nodeUniqueName(name, type){
+        return `${type}:${name}`
+      }
+
+      // Helper function to add nodes and create a unique index for each
+      function addNode(name, type) {
+        // get unique name
+        const uniqueName = nodeUniqueName(name, type);
+
+        // increase the value of the node if it already exist
+        if (nodeIndexMap.has(uniqueName)) {
+          nodes[nodeIndexMap.get(uniqueName)].value += 1;
+          return
         }
 
-        products.map((product) => {
-          const productNode = addNode(
-            product.product_name || "Unknown Product",
-            "product",
-          );
-          let oNodesOfProduct = [];
-          let mNodesOfProduct = [];
-
-          if (product.origins_tags_std) {
-            product.origins_tags_std.forEach((origin) => {
-              const originsNode = addNode(origin, "origin");
-              /*    if (originsNode !== null) {
-                oNodesOfProduct.push(originsNode);
-                links.push({
-                  source: productNode,
-                  target: originsNode,
-                  value: 1,
-                  type: "origin",
-                });
-              } */
-            });
-          }
-          if (product.manufacturing_places_tags_std) {
-            product.manufacturing_places_tags_std.forEach((manuPlace) => {
-              const manuPlaceNode = addNode(manuPlace, "manufacturing_place");
-              if (manuPlaceNode !== null) {
-                mNodesOfProduct.push(manuPlaceNode);
-                for (let origin of oNodesOfProduct) {
-                  links.push({
-                    source: origin,
-                    target: manuPlaceNode,
-                    value: 1,
-                    type: "manufacturing",
-                  });
-                }
-              }
-            });
-          }
-
-          if (product.countries_tags_std) {
-            product.countries_tags_std.forEach((country) => {
-              const countryNode = addNode(country, "country");
-              if (countryNode !== null) {
-                for (let manufacturing_place of mNodesOfProduct) {
-                  links.push({
-                    source: manufacturing_place,
-                    target: countryNode,
-                    value: 1,
-                    type: "country",
-                  });
-                }
-              }
-            });
-          }
-        });
-
-        // Generate the Sankey diagram
-        const { nodes: sankeyNodes, links: sankeyLinks } = sankey({
-          nodes: nodes.map((d) => Object.assign({}, d)),
-          links: links.map((d) => Object.assign({}, d)),
-        });
-
-        // Set node positions based on type to separate columns
-        sankeyNodes.forEach((node) => {
-          if (node.type === "product") {
-            node.x0 = 0;
-            node.x1 = sankey.nodeWidth();
-          } else if (node.type === "origin") {
-            node.x0 = width / 4;
-            node.x1 = width / 4 + sankey.nodeWidth();
-          } else if (node.type === "manufacturing_place") {
-            node.x0 = (2 * width) / 4;
-            node.x1 = (2 * width) / 4 + sankey.nodeWidth();
-          } else if (node.type === "country") {
-            node.x0 = (3 * width) / 4;
-            node.x1 = (3 * width) / 4 + sankey.nodeWidth();
-          }
-        });
-
-        // Draw links
-        svg
-          .append("g")
-          .selectAll("path")
-          .data(sankeyLinks)
-          .join("path")
-          .attr("class", "link")
-          .attr("d", d3.sankeyLinkHorizontal())
-          .attr("stroke-width", (d) => Math.max(1, d.width))
-          .attr("stroke", (d) => {
-            if (d.type === "origin") {
-              return "#ff7f0e";
-            } else if (d.type === "manufacturing") {
-              return "#2ca02c";
-            } else if (d.type === "country") {
-              return "#1f77b4";
-            } else {
-              return "#6baed6";
-            }
-          });
-
-        // Draw nodes
-        const node = svg
-          .append("g")
-          .selectAll("g")
-          .data(sankeyNodes)
-          .join("g")
-          .attr("class", "node");
-
-        node
-          .append("rect")
-          .attr("x", (d) => d.x0)
-          .attr("y", (d) => d.y0)
-          .attr("height", (d) => d.y1 - d.y0)
-          .attr("width", (d) => d.x1 - d.x0);
-
-        // Add labels (hidden by default, shown on hover)
-        node
-          .append("text")
-          .attr("x", (d) => d.x0 - 6)
-          .attr("y", (d) => (d.y1 + d.y0) / 2)
-          .attr("dy", "0.35em")
-          .attr("text-anchor", "end")
-          .text((d) => d.name)
-          .filter((d) => d.x0 < width / 2)
-          .attr("x", (d) => d.x1 + 6)
-          .attr("text-anchor", "start");
+        // create a node if it do not exist          
+        nodes.push({ name:uniqueName, country:name, type:type, value: 1});
+        nodeIndexMap.set(uniqueName, nodeIndex);
+        nodeIndex += 1;
+        //console.log(`Adding node : ${uniqueName}`);
+        return
       }
+
+      let linkIndex = 0;
+      let links = [];
+      const linkIndexMap = new Map();
+
+      function linkUniqueName(node1UniqueName, node2UniqueName){
+        return `${node1UniqueName} -> ${node2UniqueName}`
+      }
+
+      function addLink(name1, type1, name2, type2) {
+        // get unique name
+        const node1UniqueName = nodeUniqueName(name1, type1);
+        const node2UniqueName = nodeUniqueName(name2, type2);
+        const uniqueName = linkUniqueName(node1UniqueName, node2UniqueName);
+        
+        // increase the value of the link if it already exist
+        if (linkIndexMap.has(uniqueName)) {
+          links[linkIndexMap.get(uniqueName)].value += 1;
+          return;
+        }
+
+        // create a link if it do not exist
+        links.push({ source:nodeIndexMap.get(node1UniqueName), target:nodeIndexMap.get(node2UniqueName), type:type2, value: 1 });
+        linkIndexMap.set(uniqueName, linkIndex);
+        linkIndex += 1;
+        //console.log(`Adding link : ${uniqueName}`); 
+        return;
+      }
+
+      const PRODUCT_TYPE = "product";
+      const ORIGIN_TYPE = "origin";
+      const MANUFACTURING_PLACE_TYPE = "manu";
+      const COUNTRY_TYPE = "country";
+
+      products.map((product) => {
+
+        if (!product.product_name) return;
+        if (!product.origins_tags_std) return;
+        if (!product.manufacturing_places_tags_std) return;
+        if (!product.countries_tags_std) return;
+
+        // adding Nodes
+        //addNode(product.product_name, PRODUCT_TYPE);
+
+        product.origins_tags_std.forEach((origin) => {
+          addNode(origin, ORIGIN_TYPE);
+        });
+
+        product.manufacturing_places_tags_std.forEach((manu) => {
+          addNode(manu, MANUFACTURING_PLACE_TYPE);
+        });
+
+        product.countries_tags_std.forEach((country) => {
+          addNode(country, COUNTRY_TYPE)
+        });
+
+        // adding Links
+
+        //product.origins_tags_std.forEach((origin) => {
+        //  addLink(product.product_name, PRODUCT_TYPE, origin, ORIGIN_TYPE);
+        //});
+
+        product.origins_tags_std.forEach((origin) =>{ 
+          product.manufacturing_places_tags_std.forEach((manu) =>{
+            addLink(origin, ORIGIN_TYPE, manu, MANUFACTURING_PLACE_TYPE);
+          });
+        });
+
+        product.manufacturing_places_tags_std.forEach((manu) =>{
+          product.countries_tags_std.forEach((country) =>{
+            addLink(manu, MANUFACTURING_PLACE_TYPE, country, COUNTRY_TYPE);
+          });
+        });
+
+      });
+
+
+
+      // Generate the Sankey diagram
+      const { nodes: sankeyNodes, links: sankeyLinks } = sankey({
+        nodes: nodes.map((d) => Object.assign({}, d)),
+        links: links.map((d) => Object.assign({}, d)),
+      });
+
+      // Set node positions based on type to separate columns
+      sankeyNodes.forEach((node) => {
+        if (node.type === PRODUCT_TYPE) {
+          node.x0 = 0;
+          node.x1 = sankey.nodeWidth();
+        } else if (node.type === ORIGIN_TYPE) {
+          node.x0 = width / 4;
+          node.x1 = width / 4 + sankey.nodeWidth();
+        } else if (node.type === MANUFACTURING_PLACE_TYPE) {
+          node.x0 = (2 * width) / 4;
+          node.x1 = (2 * width) / 4 + sankey.nodeWidth();
+        } else if (node.type === COUNTRY_TYPE) {
+          node.x0 = (3 * width) / 4;
+          node.x1 = (3 * width) / 4 + sankey.nodeWidth();
+        }
+      });
+
+      // Draw links
+      svg
+        .append("g")
+        .selectAll("path")
+        .data(sankeyLinks)
+        .join("path")
+        .attr("class", "link")
+        .attr("d", d3.sankeyLinkHorizontal())
+        .attr("stroke-width", (d) => Math.max(1, d.width))
+        .attr("stroke", (d) => {
+          if (d.type === ORIGIN_TYPE) {
+            return "#ff7f0e";
+          } else if (d.type === MANUFACTURING_PLACE_TYPE) {
+            return "#2ca02c";
+          } else if (d.type === COUNTRY_TYPE) {
+            return "#1f77b4";
+          } else {
+            return "#6baed6";
+          }
+        });
+
+      // Draw nodes
+      const node = svg
+        .append("g")
+        .selectAll("g")
+        .data(sankeyNodes)
+        .join("g")
+        .attr("class", "node");
+
+      node
+        .append("rect")
+        .attr("x", (d) => d.x0)
+        .attr("y", (d) => d.y0)
+        .attr("height", (d) => d.y1 - d.y0)
+        .attr("width", (d) => d.x1 - d.x0);
+
+      // Add labels (hidden by default, shown on hover)
+      node
+        .append("text")
+        .attr("x", (d) => d.x0 - 6)
+        .attr("y", (d) => (d.y1 + d.y0) / 2)
+        .attr("dy", "0.35em")
+        .attr("text-anchor", "end")
+        .text((d) => d.name)
+        .filter((d) => d.x0 < width / 2)
+        .attr("x", (d) => d.x1 + 6)
+        .attr("text-anchor", "start");
+      
     </script>
   </body>
 </html>
