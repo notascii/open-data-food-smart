@@ -51,8 +51,8 @@
     <script>
 
       // Set up the SVG container
-      const width = 1920;
-      const height = 4080;
+      const width = 1600;
+      const height = 600;
       const svg = d3
         .select("#sankey-container")
         .append("svg")
@@ -138,15 +138,15 @@
         //addNode(product.product_name, PRODUCT_TYPE);
 
         product.origins_tags_std.forEach((origin) => {
-          addNode(origin, ORIGIN_TYPE);
+          addNode(countries_to_regions[origin], ORIGIN_TYPE);
         });
 
         product.manufacturing_places_tags_std.forEach((manu) => {
-          addNode(manu, MANUFACTURING_PLACE_TYPE);
+          addNode(countries_to_regions[manu], MANUFACTURING_PLACE_TYPE);
         });
 
         product.countries_tags_std.forEach((country) => {
-          addNode(country, COUNTRY_TYPE)
+          addNode(countries_to_regions[country], COUNTRY_TYPE)
         });
 
         // adding Links
@@ -157,13 +157,13 @@
 
         product.origins_tags_std.forEach((origin) =>{ 
           product.manufacturing_places_tags_std.forEach((manu) =>{
-            addLink(origin, ORIGIN_TYPE, manu, MANUFACTURING_PLACE_TYPE);
+            addLink(countries_to_regions[origin], ORIGIN_TYPE, countries_to_regions[manu], MANUFACTURING_PLACE_TYPE);
           });
         });
 
         product.manufacturing_places_tags_std.forEach((manu) =>{
           product.countries_tags_std.forEach((country) =>{
-            addLink(manu, MANUFACTURING_PLACE_TYPE, country, COUNTRY_TYPE);
+            addLink(countries_to_regions[manu], MANUFACTURING_PLACE_TYPE, countries_to_regions[country], COUNTRY_TYPE);
           });
         });
 
