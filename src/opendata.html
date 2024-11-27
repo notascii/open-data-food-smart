@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sankey Diagram - Open Food Facts</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://unpkg.com/d3-array@1"></script>
+    <script src="https://unpkg.com/d3-collection@1"></script>
+    <script src="https://unpkg.com/d3-path@1"></script>
+    <script src="https://unpkg.com/d3-shape@1"></script>
+    <script src="https://unpkg.com/d3-sankey@0"></script>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+      }
+      #sankey-container {
+        width: 100%;
+        height: 600px;
+        margin: 0 auto;
+      }
+      svg {
+        border: 1px solid #ccc;
+      }
+      .node rect {
+        fill: #3182bd;
+        stroke: #000;
+      }
+      .link {
+        fill: none;
+        stroke-opacity: 0.7;
+      }
+      .node text {
+        display: none;
+      }
+      .node:hover text {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Sankey Diagram - Open Food Facts</h1>
+    <div id="sankey-container"></div>
+    <script src="" type="text/javascript"></script>
+    <script src="" type="text/javascript"></script>
+    <script>
+      // Set up the SVG container
+      const width = 960;
+      const height = 600;
+      const svg = d3
+        .select("#sankey-container")
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height);
+
+      // Create Sankey generator
+      const sankey = d3
+        .sankey()
+        .nodeWidth(20)
+        .nodePadding(15)
+        .extent([
+          [1, 1],
+          [width - 1, height - 1],
+        ]);
+
+      {
+        const nodes = [];
+        const links = [];
+        const nodeIndexMap = new Map();
+
+        // Helper function to add nodes and create a unique index for each
+        function addNode(name, type) {
+          const uniqueName = `${type}: ${name}`;
+          console.log(`Adding node : ${uniqueName}`);
+          if (!nodeIndexMap.has(uniqueName)) {
+            const index = nodes.length;
+            nodes.push({ name: name, type: type });
+            nodeIndexMap.set(uniqueName, index);
+          }
+          return nodeIndexMap.get(uniqueName);
+        }
+
+        products.map((product) => {
+          const productNode = addNode(
+            product.product_name || "Unknown Product",
+            "product",
+          );
+          let oNodesOfProduct = [];
+          let mNodesOfProduct = [];
+
+          if (product.origins) {
+            const origins = product.origins.split(",");
+
+            origins.forEach((origin) => {
+              const originsNode = addNode(origin, "origin");
+              if (originsNode !== null) {
+                oNodesOfProduct.push(originsNode);
+                links.push({
+                  source: productNode,
+                  target: originsNode,
+                  value: 1,
+                  type: "origin",
+                });
+              }
+            });
+          } else {
+            const originsNode = addNode(product.origins, "origin");
+            if (originsNode !== null) {
+              oNodesOfProduct.push(originsNode);
+              links.push({
+                source: productNode,
+                target: originsNode,
+                value: 1,
+                type: "origin",
+              });
+            }
+          }
+
+          if (product.manufacturing_places) {
+            const manufacturing_places =
+              product.manufacturing_places.split(",");
+
+            manufacturing_places.forEach((manuPlace) => {
+              const manuPlaceNode = addNode(manuPlace, "manufacturing_place");
+              if (manuPlaceNode !== null) {
+                mNodesOfProduct.push(manuPlaceNode);
+                for (let origin of oNodesOfProduct) {
+                  links.push({
+                    source: origin,
+                    target: manuPlaceNode,
+                    value: 1,
+                    type: "manufacturing",
+                  });
+                }
+              }
+            });
+          } else {
+            const manuPlaceNode = addNode(
+              product.manufacturing_places,
+              "manufacturing_place",
+            );
+            mNodesOfProduct.push(manuPlaceNode);
+            for (let origin of oNodesOfProduct) {
+              links.push({
+                source: origin,
+                target: manuPlaceNode,
+                value: 1,
+                type: "manufacturing",
+              });
+            }
+          }
+
+          if (product.countries) {
+            const countries = product.countries.split(",");
+
+            countries.forEach((country) => {
+              const countryNode = addNode(country, "country");
+              if (countryNode !== null) {
+                for (let manufacturing_place of mNodesOfProduct) {
+                  links.push({
+                    source: manufacturing_place,
+                    target: countryNode,
+                    value: 1,
+                    type: "country",
+                  });
+                }
+              }
+            });
+          }
+        });
+
+        // Generate the Sankey diagram
+        const { nodes: sankeyNodes, links: sankeyLinks } = sankey({
+          nodes: nodes.map((d) => Object.assign({}, d)),
+          links: links.map((d) => Object.assign({}, d)),
+        });
+
+        // Set node positions based on type to separate columns
+        sankeyNodes.forEach((node) => {
+          if (node.type === "product") {
+            node.x0 = 0;
+            node.x1 = sankey.nodeWidth();
+          } else if (node.type === "origin") {
+            node.x0 = width / 4;
+            node.x1 = width / 4 + sankey.nodeWidth();
+          } else if (node.type === "manufacturing_place") {
+            node.x0 = (2 * width) / 4;
+            node.x1 = (2 * width) / 4 + sankey.nodeWidth();
+          } else if (node.type === "country") {
+            node.x0 = (3 * width) / 4;
+            node.x1 = (3 * width) / 4 + sankey.nodeWidth();
+          }
+        });
+
+        // Draw links
+        svg
+          .append("g")
+          .selectAll("path")
+          .data(sankeyLinks)
+          .join("path")
+          .attr("class", "link")
+          .attr("d", d3.sankeyLinkHorizontal())
+          .attr("stroke-width", (d) => Math.max(1, d.width))
+          .attr("stroke", (d) => {
+            if (d.type === "origin") {
+              return "#ff7f0e";
+            } else if (d.type === "manufacturing") {
+              return "#2ca02c";
+            } else if (d.type === "country") {
+              return "#1f77b4";
+            } else {
+              return "#6baed6";
+            }
+          });
+
+        // Draw nodes
+        const node = svg
+          .append("g")
+          .selectAll("g")
+          .data(sankeyNodes)
+          .join("g")
+          .attr("class", "node");
+
+        node
+          .append("rect")
+          .attr("x", (d) => d.x0)
+          .attr("y", (d) => d.y0)
+          .attr("height", (d) => d.y1 - d.y0)
+          .attr("width", (d) => d.x1 - d.x0);
+
+        // Add labels (hidden by default, shown on hover)
+        node
+          .append("text")
+          .attr("x", (d) => d.x0 - 6)
+          .attr("y", (d) => (d.y1 + d.y0) / 2)
+          .attr("dy", "0.35em")
+          .attr("text-anchor", "end")
+          .text((d) => d.name)
+          .filter((d) => d.x0 < width / 2)
+          .attr("x", (d) => d.x1 + 6)
+          .attr("text-anchor", "start");
+      }
+    </script>
+  </body>
+</html>
