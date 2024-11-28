@@ -146,11 +146,7 @@
       const ORIGIN_TYPE = "origin";
       const MANUFACTURING_PLACE_TYPE = "manu";
       const SELLING_PALCE_TYPE = "selling";
-      const ZONE_TYPES = [
-        ORIGIN_TYPE,
-        MANUFACTURING_PLACE_TYPE,
-        SELLING_PALCE_TYPE,
-      ];
+      const CATEGORIE_TYPE = "categorie";
 
       const WORLD_ZOOM = 0;
       const REGION_ZOOM = 1;
@@ -161,6 +157,55 @@
       const CATEGORIE_ZOOM = 1;
       const SUBCATEGORIE_ZOOM = 2;
 
+      function map_zoom_to_groups(type, zoom, name) {
+        switch (type) {
+          case ORIGIN_TYPE:
+          case MANUFACTURING_PLACE_TYPE:
+          case SELLING_PALCE_TYPE:
+            switch (zoom) {
+              case WORLD_ZOOM: return Object.keys(regions_to_countries); // world's regions
+              case REGION_ZOOM: return regions_to_subregions[name];      // region's subregions
+              case SUBREGION_ZOOM: return subregions_to_countries[name]; // subregion's counties
+              case COUNTRY_ZOOM: return [name];                          // just a country
+            };
+            break;
+
+          case CATEGORIE_TYPE:
+            switch (zoom) {
+              case ALLCATEGORIE_ZOOM: return [];// need to be set to categorie dict keys list
+              case CATEGORIE_ZOOM: return [];   // need to be set to categorie dict entry
+              case SUBCATEGORIE_ZOOM: return [];// need to be set to subcategorie dict entry
+            };
+            break;
+        }
+        console.log("invalid map : t:", type, " - z:", zoom, " - n:", name);
+        return [];
+      };
+
+      function get_highzoom_to_zoom_dict(type, zoom) {
+        switch (type) {
+          case ORIGIN_TYPE:
+          case MANUFACTURING_PLACE_TYPE:
+          case SELLING_PALCE_TYPE:
+            switch (zoom) {
+              case WORLD_ZOOM: return ((c) => countries_to_regions[c]);
+              case REGION_ZOOM: return ((c) => countries_to_subregions[c]);
+              case SUBREGION_ZOOM: return ((c) => c);
+              case COUNTRY_ZOOM: return ((c) => c);
+            };
+            break;
+
+          case CATEGORIE_TYPE:
+            switch (zoom) {
+              case ALLCATEGORIE_ZOOM: return ((c) => c);// need to be set to categorie dict keys list
+              case CATEGORIE_ZOOM: return ((c) => c);   // need to be set to categorie dict entry
+              case SUBCATEGORIE_ZOOM: return ((c) => c);// need to be set to subcategorie dict entry
+            };
+            break;
+        }
+        console.log("invalid map : t:", type, " - z:", zoom);
+        return false;
+      }
       // The current state of the schema
       let currentState = {
         product_state: { zoom: CATEGORIE_ZOOM },
@@ -178,49 +223,75 @@
         nodes.length = 0;
         links.length = 0;
 
+        // get groups of allowed elts
+        filtered_origin_groups = map_zoom_to_groups(ORIGIN_TYPE, originZoom, nameOrigin);
+        filtered_manu_groups = map_zoom_to_groups(MANUFACTURING_PLACE_TYPE, manuZoom, nameManu);
+        filtered_selling_groups = map_zoom_to_groups(SELLING_PALCE_TYPE, sellingZoom, nameSelling);
+        filtered_cat_groups = map_zoom_to_groups(CATEGORIE_TYPE, categorieZoom, nameCategorie);
+
         // adding Nodes
-        Object.keys(regions_to_countries).forEach((zone) => {
-          console.log(zone);
-          ZONE_TYPES.forEach((type) => {
-            addNode(zone, type);
-          });
+        filtered_origin_groups.forEach((zone) => {
+          addNode(zone, ORIGIN_TYPE);
+        }); 
+
+        filtered_manu_groups.forEach((zone) => {
+          addNode(zone, MANUFACTURING_PLACE_TYPE);
         });
+
+        filtered_selling_groups.forEach((zone) => {
+          addNode(zone, SELLING_PALCE_TYPE);
+        });
+
+        filtered_cat_groups.forEach((zone) => {
+          addNode(zone, CATEGORIE_TYPE);
+        });
+
+        origin_dict = get_highzoom_to_zoom_dict(ORIGIN_TYPE, originZoom);
+        manu_dict = get_highzoom_to_zoom_dict(MANUFACTURING_PLACE_TYPE, manuZoom);
+        selling_dict = get_highzoom_to_zoom_dict(SELLING_PALCE_TYPE, sellingZoom);
+        cat_duct = get_highzoom_to_zoom_dict(CATEGORIE_TYPE, categorieZoom);
 
         products.map((product) => {
           if (!product.product_name) return;
           if (!product.origins_tags_std) return;
           if (!product.manufacturing_places_tags_std) return;
           if (!product.countries_tags_std) return;
+          
+          
+          oml = []
+          product.origins_tags_std.forEach((origin) =>{ 
+            product.manufacturing_places_tags_std.forEach((manu) =>{
+              o = origin_dict(origin);
+              m = manu_dict(manu);
+              if (filtered_origin_groups.includes(o) && filtered_manu_groups.includes(m)) {
+                oml.push({o:o, ot:ORIGIN_TYPE, m:m, mt:MANUFACTURING_PLACE_TYPE});
+              }
+            });
+          });
 
-          //addNode(product.product_name, PRODUCT_TYPE);
+          mcl = []
+          product.manufacturing_places_tags_std.forEach((manu) =>{
+            product.countries_tags_std.forEach((sell) =>{
+              m = manu_dict(manu);
+              s = selling_dict(sell);
+              if (filtered_manu_groups.includes(m) && filtered_selling_groups.includes(s)) {
+                mcl.push({m:m, mt:MANUFACTURING_PLACE_TYPE, c:s, ct:SELLING_PALCE_TYPE});
+              }
+            });
+          });
 
-          // adding Links
-
+          if(oml.length>0 && mcl.length>0) {
+            oml.forEach(({o,ot, m, mt}) => {
+              addLink(o, ot, m, mt);
+            });
+            mcl.forEach(({m, mt, c, ct}) => {
+              addLink(m, mt, c, ct);
+            });
+          }
           //product.origins_tags_std.forEach((origin) => {
           //  addLink(product.product_name, PRODUCT_TYPE, origin, ORIGIN_TYPE);
           //});
 
-          product.origins_tags_std.forEach((origin) => {
-            product.manufacturing_places_tags_std.forEach((manu) => {
-              addLink(
-                countries_to_regions[origin],
-                ORIGIN_TYPE,
-                countries_to_regions[manu],
-                MANUFACTURING_PLACE_TYPE,
-              );
-            });
-          });
-
-          product.manufacturing_places_tags_std.forEach((manu) => {
-            product.countries_tags_std.forEach((sell) => {
-              addLink(
-                countries_to_regions[manu],
-                MANUFACTURING_PLACE_TYPE,
-                countries_to_regions[sell],
-                SELLING_PALCE_TYPE,
-              );
-            });
-          });
         });
       }
 
