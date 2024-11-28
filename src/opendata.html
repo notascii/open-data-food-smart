@@ -65,14 +65,8 @@
       src="data/regions_to_subregions_table.js"
       type="text/javascript"
     ></script>
-    <script
-    src="data/g2_to_g1.js"
-    type="text/javascript"
-    ></script>
-    <script
-    src="data/g1_to_g2.js"
-    type="text/javascript"
-    ></script>
+    <script src="data/g2_to_g1.js" type="text/javascript"></script>
+    <script src="data/g1_to_g2.js" type="text/javascript"></script>
     <script src="data/clean_data.js" type="text/javascript"></script>
     <script>
       // Set up the SVG container
@@ -115,7 +109,7 @@
         nodeIndex += 1;
         //console.log(`Adding node : ${uniqueName}`);
         return;
-      };
+      }
 
       let linkIndex = 0;
       const links = [];
@@ -123,7 +117,7 @@
 
       function linkUniqueName(node1UniqueName, node2UniqueName) {
         return `${node1UniqueName} -> ${node2UniqueName}`;
-      };
+      }
 
       function addLink(name1, type1, name2, type2) {
         // get unique name
@@ -143,13 +137,13 @@
           target: nodeIndexMap.get(node2UniqueName),
           type: type2,
           value: 1,
-          origin: name1
+          origin: name1,
         });
         linkIndexMap.set(uniqueName, linkIndex);
         linkIndex += 1;
         //console.log(`Adding link : ${uniqueName}`);
         return;
-      };
+      }
 
       const PRODUCT_TYPE = "product";
       const ORIGIN_TYPE = "origin";
@@ -172,24 +166,31 @@
           case MANUFACTURING_PLACE_TYPE:
           case SELLING_PALCE_TYPE:
             switch (zoom) {
-              case WORLD_ZOOM: return Object.keys(regions_to_countries); // world's regions
-              case REGION_ZOOM: return regions_to_subregions[name];      // region's subregions
-              case SUBREGION_ZOOM: return subregions_to_countries[name]; // subregion's countries
-              case COUNTRY_ZOOM: return [name];                          // just a country
-            };
+              case WORLD_ZOOM:
+                return Object.keys(regions_to_countries); // world's regions
+              case REGION_ZOOM:
+                return regions_to_subregions[name]; // region's subregions
+              case SUBREGION_ZOOM:
+                return subregions_to_countries[name]; // subregion's counties
+              case COUNTRY_ZOOM:
+                return [name]; // just a country
+            }
             break;
 
           case CATEGORIE_TYPE:
             switch (zoom) {
-              case ALLCATEGORIE_ZOOM: return Object.keys(g1_to_g2);// need to be set to categorie dict keys list
-              case CATEGORIE_ZOOM: return g1_to_g2[name];   // need to be set to categorie dict entry
-              case SUBCATEGORIE_ZOOM: return [name];// need to be set to subcategorie dict entry
-            };
+              case ALLCATEGORIE_ZOOM:
+                return Object.keys(g1_to_g2); // need to be set to categorie dict keys list
+              case CATEGORIE_ZOOM:
+                return g1_to_g2[name]; // need to be set to categorie dict entry
+              case SUBCATEGORIE_ZOOM:
+                return [name]; // need to be set to subcategorie dict entry
+            }
             break;
         }
         console.log("invalid map : t:", type, " - z:", zoom, " - n:", name);
         return [];
-      };
+      }
 
       function get_highzoom_to_zoom_dict(type, zoom) {
         switch (type) {
@@ -197,31 +198,60 @@
           case MANUFACTURING_PLACE_TYPE:
           case SELLING_PALCE_TYPE:
             switch (zoom) {
-              case WORLD_ZOOM: return ((c) => countries_to_regions[c]);
-              case REGION_ZOOM: return ((c) => countries_to_subregions[c]);
-              case SUBREGION_ZOOM: return ((c) => c);
-              case COUNTRY_ZOOM: return ((c) => c);
-            };
+              case WORLD_ZOOM:
+                return (c) => countries_to_regions[c];
+              case REGION_ZOOM:
+                return (c) => countries_to_subregions[c];
+              case SUBREGION_ZOOM:
+                return (c) => c;
+              case COUNTRY_ZOOM:
+                return (c) => c;
+            }
             break;
 
           case CATEGORIE_TYPE:
             switch (zoom) {
-              case ALLCATEGORIE_ZOOM: return ((c) => g2_to_g1[c]);// need to be set to categorie dict keys list
-              case CATEGORIE_ZOOM: return ((c) => c);   // need to be set to categorie dict entry
-              case SUBCATEGORIE_ZOOM: return ((c) => c);// need to be set to subcategorie dict entry
-            };
+              case ALLCATEGORIE_ZOOM:
+                return (c) => g2_to_g1[c]; // need to be set to categorie dict keys list
+              case CATEGORIE_ZOOM:
+                return (c) => c; // need to be set to categorie dict entry
+              case SUBCATEGORIE_ZOOM:
+                return (c) => c; // need to be set to subcategorie dict entry
+            }
             break;
         }
         console.log("invalid map : t:", type, " - z:", zoom);
         return false;
+      }
+
+      const DEFAULT_VIEW = {
+        origin: { originZoom: WORLD_ZOOM, nameOrigin: "" },
+        manufacturing: { manuZoom: COUNTRY_ZOOM, nameManu: "France" },
+        selling_place: { sellingZoom: WORLD_ZOOM, nameSelling: "" },
+        categorie: {
+          categorieZoom: SUBCATEGORIE_ZOOM,
+          nameCategorie: "Fruit juices",
+        },
       };
 
       // The current state of the schema
       let currentState = {
-        product_state: { zoom: CATEGORIE_ZOOM },
-        origin_state: { zoom: WORLD_ZOOM },
-        manu_state: { zoom: WORLD_ZOOM },
-        selling_state: { zoom: WORLD_ZOOM },
+        categorie_state: {
+          zoom: DEFAULT_VIEW.categorie.categorieZoom,
+          name: DEFAULT_VIEW.categorie.nameCategorie,
+        },
+        origin_state: {
+          zoom: DEFAULT_VIEW.origin.originZoom,
+          name: DEFAULT_VIEW.origin.nameOrigin,
+        },
+        manu_state: {
+          zoom: DEFAULT_VIEW.manufacturing.manuZoom,
+          name: DEFAULT_VIEW.manufacturing.nameManu,
+        },
+        selling_state: {
+          zoom: DEFAULT_VIEW.selling_place.sellingZoom,
+          name: DEFAULT_VIEW.selling_place.nameSelling,
+        },
       };
 
       function data_to_graph_filtered(
@@ -238,21 +268,39 @@
         links.length = 0;
         linkIndexMap.clear();
 
-        console.log(        { originZoom, nameOrigin },
-        { manuZoom, nameManu },
-        { sellingZoom, nameSelling },
-        { categorieZoom, nameCategorie })
+        console.log(
+          { originZoom, nameOrigin },
+          { manuZoom, nameManu },
+          { sellingZoom, nameSelling },
+          { categorieZoom, nameCategorie },
+        );
 
-        // get groups of allowed elements
-        filtered_origin_groups = map_zoom_to_groups(ORIGIN_TYPE, originZoom, nameOrigin);
-        filtered_manu_groups = map_zoom_to_groups(MANUFACTURING_PLACE_TYPE, manuZoom, nameManu);
-        filtered_selling_groups = map_zoom_to_groups(SELLING_PALCE_TYPE, sellingZoom, nameSelling);
-        filtered_cat_groups = map_zoom_to_groups(CATEGORIE_TYPE, categorieZoom, nameCategorie);
+        // get groups of allowed elts
+        const filtered_origin_groups = map_zoom_to_groups(
+          ORIGIN_TYPE,
+          originZoom,
+          nameOrigin,
+        );
+        const filtered_manu_groups = map_zoom_to_groups(
+          MANUFACTURING_PLACE_TYPE,
+          manuZoom,
+          nameManu,
+        );
+        const filtered_selling_groups = map_zoom_to_groups(
+          SELLING_PALCE_TYPE,
+          sellingZoom,
+          nameSelling,
+        );
+        const filtered_cat_groups = map_zoom_to_groups(
+          CATEGORIE_TYPE,
+          categorieZoom,
+          nameCategorie,
+        );
 
         // adding Nodes
         filtered_origin_groups.forEach((zone) => {
           addNode(zone, ORIGIN_TYPE);
-        }); 
+        });
 
         filtered_manu_groups.forEach((zone) => {
           addNode(zone, MANUFACTURING_PLACE_TYPE);
@@ -267,9 +315,18 @@
         });
 
         const origin_dict = get_highzoom_to_zoom_dict(ORIGIN_TYPE, originZoom);
-        const manu_dict = get_highzoom_to_zoom_dict(MANUFACTURING_PLACE_TYPE, manuZoom);
-        const selling_dict = get_highzoom_to_zoom_dict(SELLING_PALCE_TYPE, sellingZoom);
-        const cat_dict = get_highzoom_to_zoom_dict(CATEGORIE_TYPE, categorieZoom);
+        const manu_dict = get_highzoom_to_zoom_dict(
+          MANUFACTURING_PLACE_TYPE,
+          manuZoom,
+        );
+        const selling_dict = get_highzoom_to_zoom_dict(
+          SELLING_PALCE_TYPE,
+          sellingZoom,
+        );
+        const cat_dict = get_highzoom_to_zoom_dict(
+          CATEGORIE_TYPE,
+          categorieZoom,
+        );
 
         products.map((product) => {
           if (!product.product_name) return;
@@ -277,60 +334,83 @@
           if (!product.manufacturing_places_tags_std) return;
           if (!product.countries_tags_std) return;
 
-          oml = []
-          product.origins_tags_std.forEach((origin) =>{ 
-            product.manufacturing_places_tags_std.forEach((manu) =>{
+          oml = [];
+          product.origins_tags_std.forEach((origin) => {
+            product.manufacturing_places_tags_std.forEach((manu) => {
               o = origin_dict(origin);
               m = manu_dict(manu);
-              if (filtered_origin_groups.includes(o) && filtered_manu_groups.includes(m)) {
-                oml.push({o:o, ot:ORIGIN_TYPE, m:m, mt:MANUFACTURING_PLACE_TYPE});
+              if (
+                filtered_origin_groups.includes(o) &&
+                filtered_manu_groups.includes(m)
+              ) {
+                oml.push({
+                  o: o,
+                  ot: ORIGIN_TYPE,
+                  m: m,
+                  mt: MANUFACTURING_PLACE_TYPE,
+                });
               }
             });
           });
 
-          mcl = []
-          product.manufacturing_places_tags_std.forEach((manu) =>{
-            product.countries_tags_std.forEach((sell) =>{
+          mcl = [];
+          product.manufacturing_places_tags_std.forEach((manu) => {
+            product.countries_tags_std.forEach((sell) => {
               m = manu_dict(manu);
               s = selling_dict(sell);
-              if (filtered_manu_groups.includes(m) && filtered_selling_groups.includes(s)) {
-                mcl.push({m:m, mt:MANUFACTURING_PLACE_TYPE, s:s, st:SELLING_PALCE_TYPE});
+              if (
+                filtered_manu_groups.includes(m) &&
+                filtered_selling_groups.includes(s)
+              ) {
+                mcl.push({
+                  m: m,
+                  mt: MANUFACTURING_PLACE_TYPE,
+                  s: s,
+                  st: SELLING_PALCE_TYPE,
+                });
               }
             });
           });
 
-          ccl = []
-          product.countries_tags_std.forEach((sell) =>{
+          ccl = [];
+          product.countries_tags_std.forEach((sell) => {
             s = selling_dict(sell);
             c = cat_dict(product.pnns_groups_2);
-            if (filtered_selling_groups.includes(s) && filtered_cat_groups.includes(c)) {
-              ccl.push({s:s, st:SELLING_PALCE_TYPE, c:c, ct:CATEGORIE_TYPE});
+            if (
+              filtered_selling_groups.includes(s) &&
+              filtered_cat_groups.includes(c)
+            ) {
+              ccl.push({
+                s: s,
+                st: SELLING_PALCE_TYPE,
+                c: c,
+                ct: CATEGORIE_TYPE,
+              });
             }
           });
 
-          if(oml.length>0 && mcl.length>0 && ccl.length>0) {
-            oml.forEach(({o,ot, m, mt}) => {
+          if (oml.length > 0 && mcl.length > 0 && ccl.length > 0) {
+            oml.forEach(({ o, ot, m, mt }) => {
               addLink(o, ot, m, mt);
             });
-            mcl.forEach(({m, mt, s, st}) => {
+            mcl.forEach(({ m, mt, s, st }) => {
               addLink(m, mt, s, st);
             });
-            ccl.forEach(({s, st, c, ct}) => {
+            ccl.forEach(({ s, st, c, ct }) => {
               addLink(s, st, c, ct);
             });
           }
           //product.origins_tags_std.forEach((origin) => {
           //  addLink(product.product_name, PRODUCT_TYPE, origin, ORIGIN_TYPE);
           //});
-
         });
       }
 
       data_to_graph_filtered(
-        { originZoom: WORLD_ZOOM, nameOrigin: "" },
-        { manuZoom: COUNTRY_ZOOM, nameManu: "France" },
-        { sellingZoom: WORLD_ZOOM, nameSelling: "" },
-        { categorieZoom: SUBCATEGORIE_ZOOM, nameCategorie: "Fruit juices" },
+        DEFAULT_VIEW.origin,
+        DEFAULT_VIEW.manufacturing,
+        DEFAULT_VIEW.selling_place,
+        DEFAULT_VIEW.categorie,
       );
 
       function zoomIn(d) {
@@ -347,6 +427,7 @@
           } else {
             currentState.origin_state.zoom = WORLD_ZOOM;
           }
+          currentState.origin_state.name = d.name.split(":")[1];
         } else if (d.type == MANUFACTURING_PLACE_TYPE) {
           const current_manu_state = currentState.manu_state.zoom;
           if (current_manu_state == WORLD_ZOOM) {
@@ -358,6 +439,7 @@
           } else {
             currentState.manu_state.zoom = WORLD_ZOOM;
           }
+          currentState.manu_state.name = d.name.split(":")[1];
         } else if (d.type == SELLING_PALCE_TYPE) {
           const current_selling_state = currentState.selling_state.zoom;
           if (current_selling_state == WORLD_ZOOM) {
@@ -369,33 +451,35 @@
           } else {
             currentState.selling_state.zoom = WORLD_ZOOM;
           }
+          currentState.selling_state.name = d.name.split(":")[1];
         } else if (d.type == CATEGORIE_TYPE) {
-          const current_product_state = currentState.product_state.zoom;
-          if (current_product_state == ALLCATEGORIE_ZOOM) {
-            currentState.product_state.zoom = CATEGORIE_ZOOM;
-          } else if (current_product_state == CATEGORIE_ZOOM) {
-            currentState.product_state.zoom = SUBCATEGORIE_ZOOM;
+          const current_categorie_state = currentState.categorie_state.zoom;
+          if (current_categorie_state == ALLCATEGORIE_ZOOM) {
+            currentState.categorie_state.zoom = CATEGORIE_ZOOM;
+          } else if (current_categorie_state == CATEGORIE_ZOOM) {
+            currentState.categorie_state.zoom = SUBCATEGORIE_ZOOM;
           } else {
-            currentState.product_state.zoom = ALLCATEGORIE_ZOOM;
+            currentState.categorie_state.zoom = ALLCATEGORIE_ZOOM;
           }
+          currentState.categorie_state.name = d.name.split(":")[1];
         }
         // Add your left click callback logic here
         data_to_graph_filtered(
           {
             originZoom: currentState.origin_state.zoom,
-            nameOrigin: d.name.split(":")[1],
+            nameOrigin: currentState.origin_state.name,
           },
           {
             manuZoom: currentState.manu_state.zoom,
-            nameManu: d.name.split(":")[1],
+            nameManu: currentState.manu_state.name,
           },
           {
             sellingZoom: currentState.selling_state.zoom,
-            nameSelling: d.name.split(":")[1],
+            nameSelling: currentState.selling_state.name,
           },
           {
-            categorieZoom: currentState.product_state.zoom,
-            nameCategorie: d.name.split(":")[1],
+            categorieZoom: currentState.categorie_state.zoom,
+            nameCategorie: currentState.categorie_state.name,
           },
         );
 
@@ -417,6 +501,7 @@
           } else {
             currentState.origin_state.zoom = SUBREGION_ZOOM;
           }
+          currentState.origin_state.name = d.name.split(":")[1];
         } else if (d.type == MANUFACTURING_PLACE_TYPE) {
           const current_manu_state = currentState.manu_state.zoom;
           if (current_manu_state == WORLD_ZOOM) {
@@ -428,6 +513,7 @@
           } else {
             currentState.manu_state.zoom = SUBREGION_ZOOM;
           }
+          currentState.manu_state.name = d.name.split(":")[1];
         } else if (d.type == SELLING_PALCE_TYPE) {
           const current_selling_state = currentState.selling_state.zoom;
           if (current_selling_state == WORLD_ZOOM) {
@@ -439,33 +525,35 @@
           } else {
             currentState.selling_state.zoom = SUBREGION_ZOOM;
           }
+          currentState.selling_state.name = d.name.split(":")[1];
         } else if (d.type == PRODUCT_TYPE) {
-          const current_product_state = currentState.product_state.zoom;
-          if (current_product_state == ALLCATEGORIE_ZOOM) {
-            currentState.product_state.zoom = SUBCATEGORIE_ZOOM;
-          } else if (current_product_state == CATEGORIE_ZOOM) {
-            currentState.product_state.zoom = ALLCATEGORIE_ZOOM;
-          } else {
-            currentState.product_state.zoom = CATEGORIE_ZOOM;
+          const current_categorie_state = currentState.categorie_state.zoom;
+          if (current_categorie_state == ALLCATEGORIE_ZOOM) {
+            currentState.categorie_state.zoom = SUBCATEGORIE_ZOOM;
+          } else if (current_categorie_state == CATEGORIE_ZOOM) {
+            currentState.categorie_state.zoom = ALLCATEGORIE_ZOOM;
+          } else if (current_categorie_state == SUBCATEGORIE_ZOOM) {
+            currentState.categorie_state.zoom = CATEGORIE_ZOOM;
           }
+          currentState.categorie_state.name = d.name.split(":")[1];
         }
 
         data_to_graph_filtered(
           {
             originZoom: currentState.origin_state.zoom,
-            nameOrigin: d.name.split(":")[1],
+            nameOrigin: currentState.origin_state.name,
           },
           {
             manuZoom: currentState.manu_state.zoom,
-            nameManu: d.name.split(":")[1],
+            nameManu: currentState.manu_state.name,
           },
           {
             sellingZoom: currentState.selling_state.zoom,
-            nameSelling: d.name.split(":")[1],
+            nameSelling: currentState.selling_state.name,
           },
           {
-            categorieZoom: currentState.product_state.zoom,
-            nameCategorie: d.name.split(":")[1],
+            categorieZoom: currentState.categorie_state.zoom,
+            nameCategorie: currentState.categorie_state.name,
           },
         );
 
@@ -475,6 +563,9 @@
       // function to draw the graph
       // will update the graph with the new data
       function drawGraph() {
+        // Empty the current canvas
+        svg.selectAll("*").remove();
+
         // Generate the Sankey diagram
         const { nodes: sankeyNodes, links: sankeyLinks } = sankey({
           nodes: nodes.map((d) => Object.assign({}, d)),
@@ -509,12 +600,12 @@
           .attr("stroke-width", (d) => d.width)
           .attr("stroke", (d) => {
             const continentColors = {
-              "Europe": "#1f77b4",
-              "Asia": "#2ca02c", // Green
-              "Africa": "#ff7f0e",
+              Europe: "#1f77b4",
+              Asia: "#2ca02c", // Green
+              Africa: "#ff7f0e",
               "North America": "#d62728", // Red
               "South America": "#9467bd",
-              "Oceania": "#8c564b"
+              Oceania: "#8c564b",
             };
             return continentColors[d.origin] || "#6baed6";
           });
@@ -532,7 +623,6 @@
             }
           })
           .on("contextmenu", (event, d) => {
-            event.preventDefault();
             zoomOut(d);
           });
 
@@ -544,12 +634,12 @@
           .attr("width", (d) => 20)
           .attr("fill", (d) => {
             const continentColors = {
-              "Europe": "#1f77b4",
-              "Asia": "#2ca02c", // Green
-              "Africa": "#ff7f0e",
+              Europe: "#1f77b4",
+              Asia: "#2ca02c", // Green
+              Africa: "#ff7f0e",
               "North America": "#d62728", // Red
               "South America": "#9467bd",
-              "Oceania": "#8c564b"
+              Oceania: "#8c564b",
             };
             return continentColors[d.zone] || "#6baed6";
           });
