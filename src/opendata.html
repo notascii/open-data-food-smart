@@ -65,6 +65,14 @@
       src="data/regions_to_subregions_table.js"
       type="text/javascript"
     ></script>
+    <script
+    src="data/g2_to_g1.js"
+    type="text/javascript"
+    ></script>
+    <script
+    src="data/g1_to_g2.js"
+    type="text/javascript"
+    ></script>
     <script src="data/clean_data.js" type="text/javascript"></script>
     <script>
       // Set up the SVG container
@@ -107,7 +115,7 @@
         nodeIndex += 1;
         //console.log(`Adding node : ${uniqueName}`);
         return;
-      }
+      };
 
       let linkIndex = 0;
       const links = [];
@@ -115,7 +123,7 @@
 
       function linkUniqueName(node1UniqueName, node2UniqueName) {
         return `${node1UniqueName} -> ${node2UniqueName}`;
-      }
+      };
 
       function addLink(name1, type1, name2, type2) {
         // get unique name
@@ -141,7 +149,7 @@
         linkIndex += 1;
         //console.log(`Adding link : ${uniqueName}`);
         return;
-      }
+      };
 
       const PRODUCT_TYPE = "product";
       const ORIGIN_TYPE = "origin";
@@ -173,9 +181,9 @@
 
           case CATEGORIE_TYPE:
             switch (zoom) {
-              case ALLCATEGORIE_ZOOM: return [];// need to be set to categorie dict keys list
-              case CATEGORIE_ZOOM: return [];   // need to be set to categorie dict entry
-              case SUBCATEGORIE_ZOOM: return [];// need to be set to subcategorie dict entry
+              case ALLCATEGORIE_ZOOM: return Object.keys(g1_to_g2);// need to be set to categorie dict keys list
+              case CATEGORIE_ZOOM: return g1_to_g2[name];   // need to be set to categorie dict entry
+              case SUBCATEGORIE_ZOOM: return [name];// need to be set to subcategorie dict entry
             };
             break;
         }
@@ -198,7 +206,7 @@
 
           case CATEGORIE_TYPE:
             switch (zoom) {
-              case ALLCATEGORIE_ZOOM: return ((c) => c);// need to be set to categorie dict keys list
+              case ALLCATEGORIE_ZOOM: return ((c) => g2_to_g1[c]);// need to be set to categorie dict keys list
               case CATEGORIE_ZOOM: return ((c) => c);   // need to be set to categorie dict entry
               case SUBCATEGORIE_ZOOM: return ((c) => c);// need to be set to subcategorie dict entry
             };
@@ -206,7 +214,8 @@
         }
         console.log("invalid map : t:", type, " - z:", zoom);
         return false;
-      }
+      };
+
       // The current state of the schema
       let currentState = {
         product_state: { zoom: CATEGORIE_ZOOM },
@@ -222,7 +231,17 @@
         { categorieZoom, nameCategorie },
       ) {
         nodes.length = 0;
+        nodeIndex = 0;
+        nodeIndexMap.clear();
+
+        linkIndex = 0;
         links.length = 0;
+        linkIndexMap.clear();
+
+        console.log(        { originZoom, nameOrigin },
+        { manuZoom, nameManu },
+        { sellingZoom, nameSelling },
+        { categorieZoom, nameCategorie })
 
         // get groups of allowed elements
         filtered_origin_groups = map_zoom_to_groups(ORIGIN_TYPE, originZoom, nameOrigin);
@@ -247,10 +266,10 @@
           addNode(zone, CATEGORIE_TYPE);
         });
 
-        origin_dict = get_highzoom_to_zoom_dict(ORIGIN_TYPE, originZoom);
-        manu_dict = get_highzoom_to_zoom_dict(MANUFACTURING_PLACE_TYPE, manuZoom);
-        selling_dict = get_highzoom_to_zoom_dict(SELLING_PALCE_TYPE, sellingZoom);
-        cat_dict = get_highzoom_to_zoom_dict(CATEGORIE_TYPE, categorieZoom);
+        const origin_dict = get_highzoom_to_zoom_dict(ORIGIN_TYPE, originZoom);
+        const manu_dict = get_highzoom_to_zoom_dict(MANUFACTURING_PLACE_TYPE, manuZoom);
+        const selling_dict = get_highzoom_to_zoom_dict(SELLING_PALCE_TYPE, sellingZoom);
+        const cat_dict = get_highzoom_to_zoom_dict(CATEGORIE_TYPE, categorieZoom);
 
         products.map((product) => {
           if (!product.product_name) return;
@@ -275,17 +294,29 @@
               m = manu_dict(manu);
               s = selling_dict(sell);
               if (filtered_manu_groups.includes(m) && filtered_selling_groups.includes(s)) {
-                mcl.push({m:m, mt:MANUFACTURING_PLACE_TYPE, c:s, ct:SELLING_PALCE_TYPE});
+                mcl.push({m:m, mt:MANUFACTURING_PLACE_TYPE, s:s, st:SELLING_PALCE_TYPE});
               }
             });
           });
 
-          if(oml.length>0 && mcl.length>0) {
+          ccl = []
+          product.countries_tags_std.forEach((sell) =>{
+            s = selling_dict(sell);
+            c = cat_dict(product.pnns_groups_2);
+            if (filtered_selling_groups.includes(s) && filtered_cat_groups.includes(c)) {
+              ccl.push({s:s, st:SELLING_PALCE_TYPE, c:c, ct:CATEGORIE_TYPE});
+            }
+          });
+
+          if(oml.length>0 && mcl.length>0 && ccl.length>0) {
             oml.forEach(({o,ot, m, mt}) => {
               addLink(o, ot, m, mt);
             });
-            mcl.forEach(({m, mt, c, ct}) => {
-              addLink(m, mt, c, ct);
+            mcl.forEach(({m, mt, s, st}) => {
+              addLink(m, mt, s, st);
+            });
+            ccl.forEach(({s, st, c, ct}) => {
+              addLink(s, st, c, ct);
             });
           }
           //product.origins_tags_std.forEach((origin) => {
@@ -297,9 +328,9 @@
 
       data_to_graph_filtered(
         { originZoom: WORLD_ZOOM, nameOrigin: "" },
-        { manuZoom: WORLD_ZOOM, nameManu: "" },
+        { manuZoom: COUNTRY_ZOOM, nameManu: "France" },
         { sellingZoom: WORLD_ZOOM, nameSelling: "" },
-        { categorieZoom: ALLCATEGORIE_ZOOM, nameCategorie: "" },
+        { categorieZoom: SUBCATEGORIE_ZOOM, nameCategorie: "Fruit juices" },
       );
 
       function zoomIn(d) {
@@ -338,7 +369,7 @@
           } else {
             currentState.selling_state.zoom = WORLD_ZOOM;
           }
-        } else if (d.type == PRODUCT_TYPE) {
+        } else if (d.type == CATEGORIE_TYPE) {
           const current_product_state = currentState.product_state.zoom;
           if (current_product_state == ALLCATEGORIE_ZOOM) {
             currentState.product_state.zoom = CATEGORIE_ZOOM;
