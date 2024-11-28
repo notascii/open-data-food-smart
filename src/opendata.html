@@ -132,6 +132,10 @@
       const SUBREGION_ZOOM = 2;
       const COUNTRY_ZOOM = 3;
 
+      const ALLCATEGORIE_ZOOM = 0;
+      const CATEGORIE_ZOOM = 1;
+      const SUBCATEGORIE_ZOOM = 2;
+
 
       function data_to_graph_filtered({originZoom, nameOrigin}, {manuZoom, nameManu}, {sellingZoom, nameSelling}, {categorieZoom, nameCategorie}) {
         nodes.length = 0;
@@ -182,7 +186,7 @@
         {originZoom:WORLD_ZOOM, nameOrigin:""}, 
         {manuZoom:WORLD_ZOOM, nameManu:""}, 
         {sellingZoom:WORLD_ZOOM, nameSelling:""}, 
-        {categorieZoom:WORLD_ZOOM, nameCategorie:""}
+        {categorieZoom:ALLCATEGORIE_ZOOM, nameCategorie:""}
       );
 
       // Generate the Sankey diagram
