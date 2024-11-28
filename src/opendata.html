@@ -128,7 +128,7 @@
       const ZONE_TYPES = [ORIGIN_TYPE, MANUFACTURING_PLACE_TYPE, COUNTRY_TYPE]; 
 
 
-      function data_to_graph_filtered() {
+      function data_to_graph_filtered({originZoom, nameOrigin}, {manuZoom, nameManu}, {countryZoom, nameCountry}, {categorieZoom, nameCategorie}) {
         nodes.length = 0;
         links.length = 0;
 
