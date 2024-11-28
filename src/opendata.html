@@ -107,7 +107,6 @@
         nodes.push({ name: uniqueName, zone: name, type: type, value: 1 });
         nodeIndexMap.set(uniqueName, nodeIndex);
         nodeIndex += 1;
-        //console.log(`Adding node : ${uniqueName}`);
         return;
       }
 
@@ -141,7 +140,6 @@
         });
         linkIndexMap.set(uniqueName, linkIndex);
         linkIndex += 1;
-        //console.log(`Adding link : ${uniqueName}`);
         return;
       }
 
@@ -167,24 +165,24 @@
           case SELLING_PALCE_TYPE:
             switch (zoom) {
               case WORLD_ZOOM:
-                return Object.keys(regions_to_countries); // world's regions
+                return Object.keys(regions_to_countries);
               case REGION_ZOOM:
-                return regions_to_subregions[name]; // region's subregions
+                return regions_to_subregions[name];
               case SUBREGION_ZOOM:
-                return subregions_to_countries[name]; // subregion's counties
+                return subregions_to_countries[name];
               case COUNTRY_ZOOM:
-                return [name]; // just a country
+                return [name];
             }
             break;
 
           case CATEGORIE_TYPE:
             switch (zoom) {
               case ALLCATEGORIE_ZOOM:
-                return Object.keys(g1_to_g2); // need to be set to categorie dict keys list
+                return Object.keys(g1_to_g2);
               case CATEGORIE_ZOOM:
-                return g1_to_g2[name]; // need to be set to categorie dict entry
+                return g1_to_g2[name];
               case SUBCATEGORIE_ZOOM:
-                return [name]; // need to be set to subcategorie dict entry
+                return [name];
             }
             break;
         }
@@ -212,11 +210,11 @@
           case CATEGORIE_TYPE:
             switch (zoom) {
               case ALLCATEGORIE_ZOOM:
-                return (c) => g2_to_g1[c]; // need to be set to categorie dict keys list
+                return (c) => g2_to_g1[c];
               case CATEGORIE_ZOOM:
-                return (c) => c; // need to be set to categorie dict entry
+                return (c) => c;
               case SUBCATEGORIE_ZOOM:
-                return (c) => c; // need to be set to subcategorie dict entry
+                return (c) => c;
             }
             break;
         }
@@ -226,11 +224,11 @@
 
       const DEFAULT_VIEW = {
         origin: { originZoom: WORLD_ZOOM, nameOrigin: "" },
-        manufacturing: { manuZoom: COUNTRY_ZOOM, nameManu: "France" },
+        manufacturing: { manuZoom: WORLD_ZOOM, nameManu: "" },
         selling_place: { sellingZoom: WORLD_ZOOM, nameSelling: "" },
         categorie: {
-          categorieZoom: SUBCATEGORIE_ZOOM,
-          nameCategorie: "Fruit juices",
+          categorieZoom: ALLCATEGORIE_ZOOM,
+          nameCategorie: "",
         },
       };
 
@@ -267,13 +265,6 @@
         linkIndex = 0;
         links.length = 0;
         linkIndexMap.clear();
-
-        console.log(
-          { originZoom, nameOrigin },
-          { manuZoom, nameManu },
-          { sellingZoom, nameSelling },
-          { categorieZoom, nameCategorie },
-        );
 
         // get groups of allowed elts
         const filtered_origin_groups = map_zoom_to_groups(
@@ -400,9 +391,6 @@
               addLink(s, st, c, ct);
             });
           }
-          //product.origins_tags_std.forEach((origin) => {
-          //  addLink(product.product_name, PRODUCT_TYPE, origin, ORIGIN_TYPE);
-          //});
         });
       }
 
@@ -413,56 +401,102 @@
         DEFAULT_VIEW.categorie,
       );
 
+      function getZoom(type, currentState) {
+        switch (type) {
+          case ORIGIN_TYPE:
+          case MANUFACTURING_PLACE_TYPE:
+          case SELLING_PALCE_TYPE:
+            switch (currentState) {
+              case WORLD_ZOOM: return REGION_ZOOM;
+              case REGION_ZOOM: return SUBREGION_ZOOM;
+              case SUBCATEGORIE_ZOOM: return COUNTRY_ZOOM;
+              case COUNTRY_ZOOM: return COUNTRY_ZOOM;
+            }
+            break;
+
+          case CATEGORIE_TYPE:
+            switch (currentState) {
+              case ALLCATEGORIE_ZOOM: return CATEGORIE_ZOOM;
+              case CATEGORIE_ZOOM: return SUBCATEGORIE_ZOOM;
+              case SUBCATEGORIE_ZOOM: return SUBCATEGORIE_ZOOM;
+            }
+        }
+      }
+
+      function getDezoom(type, currentState) {
+        switch (type) {
+          case ORIGIN_TYPE:
+          case MANUFACTURING_PLACE_TYPE:
+          case SELLING_PALCE_TYPE:
+            switch (currentState) {
+              case WORLD_ZOOM: return WORLD_ZOOM;
+              case REGION_ZOOM: return WORLD_ZOOM;
+              case SUBCATEGORIE_ZOOM: return REGION_ZOOM;
+              case COUNTRY_ZOOM: return SUBCATEGORIE_ZOOM;
+            }
+            break;
+
+          case CATEGORIE_TYPE:
+            switch (currentState) {
+              case ALLCATEGORIE_ZOOM: return ALLCATEGORIE_ZOOM;
+              case CATEGORIE_ZOOM: return ALLCATEGORIE_ZOOM;
+              case SUBCATEGORIE_ZOOM: return CATEGORIE_ZOOM;
+            }
+        }
+      }
+
+      function getDezoomName(type, zoom, name) {
+        console.log(type, zoom, currentState);
+        switch (type) {
+          case ORIGIN_TYPE:
+          case MANUFACTURING_PLACE_TYPE:
+          case SELLING_PALCE_TYPE:
+            switch (zoom) {
+              case WORLD_ZOOM: 
+                return "";
+              case REGION_ZOOM: 
+                return "";
+              case SUBREGION_ZOOM: 
+                return countries_to_regions[name];
+              case COUNTRY_ZOOM: 
+                return countries_to_subregions[name];
+            }
+            break;
+
+          case CATEGORIE_TYPE:
+            switch (zoom) {
+              case ALLCATEGORIE_ZOOM: 
+                return "";
+              case CATEGORIE_ZOOM:
+                return g2_to_g1[name];
+              case SUBCATEGORIE_ZOOM:
+                return g2_to_g1[name];
+            }
+            break
+        }
+      }
+
       function zoomIn(d) {
         // Left click
         console.log("Left clicked on: ", d.name);
-        if (d.type == ORIGIN_TYPE) {
-          const current_origin_state = currentState.origin_state.zoom;
-          if (current_origin_state == WORLD_ZOOM) {
-            currentState.origin_state.zoom = REGION_ZOOM;
-          } else if (current_origin_state == REGION_ZOOM) {
-            currentState.origin_state.zoom = SUBREGION_ZOOM;
-          } else if (current_origin_state == SUBREGION_ZOOM) {
-            currentState.origin_state.zoom = COUNTRY_ZOOM;
-          } else {
-            currentState.origin_state.zoom = WORLD_ZOOM;
-          }
-          currentState.origin_state.name = d.name.split(":")[1];
-        } else if (d.type == MANUFACTURING_PLACE_TYPE) {
-          const current_manu_state = currentState.manu_state.zoom;
-          if (current_manu_state == WORLD_ZOOM) {
-            currentState.manu_state.zoom = REGION_ZOOM;
-          } else if (current_manu_state == REGION_ZOOM) {
-            currentState.manu_state.zoom = SUBREGION_ZOOM;
-          } else if (current_manu_state == SUBREGION_ZOOM) {
-            currentState.manu_state.zoom = COUNTRY_ZOOM;
-          } else {
-            currentState.manu_state.zoom = WORLD_ZOOM;
-          }
-          currentState.manu_state.name = d.name.split(":")[1];
-        } else if (d.type == SELLING_PALCE_TYPE) {
-          const current_selling_state = currentState.selling_state.zoom;
-          if (current_selling_state == WORLD_ZOOM) {
-            currentState.selling_state.zoom = REGION_ZOOM;
-          } else if (current_selling_state == REGION_ZOOM) {
-            currentState.selling_state.zoom = SUBREGION_ZOOM;
-          } else if (current_selling_state == SUBREGION_ZOOM) {
-            currentState.selling_state.zoom = COUNTRY_ZOOM;
-          } else {
-            currentState.selling_state.zoom = WORLD_ZOOM;
-          }
-          currentState.selling_state.name = d.name.split(":")[1];
-        } else if (d.type == CATEGORIE_TYPE) {
-          const current_categorie_state = currentState.categorie_state.zoom;
-          if (current_categorie_state == ALLCATEGORIE_ZOOM) {
-            currentState.categorie_state.zoom = CATEGORIE_ZOOM;
-          } else if (current_categorie_state == CATEGORIE_ZOOM) {
-            currentState.categorie_state.zoom = SUBCATEGORIE_ZOOM;
-          } else {
-            currentState.categorie_state.zoom = ALLCATEGORIE_ZOOM;
-          }
-          currentState.categorie_state.name = d.name.split(":")[1];
+        switch (d.type){
+          case ORIGIN_TYPE:
+            currentState.origin_state.name = d.name.split(":")[1];
+            currentState.origin_state.zoom = getZoom(ORIGIN_TYPE, currentState.origin_state.zoom);
+            break;
+          case MANUFACTURING_PLACE_TYPE:
+            currentState.manu_state.name = d.name.split(":")[1];
+            currentState.manu_state.zoom = getZoom(MANUFACTURING_PLACE_TYPE, currentState.manu_state.zoom);
+            break;
+          case SELLING_PALCE_TYPE:
+            currentState.selling_state.name = d.name.split(":")[1];
+            currentState.selling_state.zoom = getZoom(SELLING_PALCE_TYPE, currentState.selling_state.zoom);
+            break;
+          case CATEGORIE_TYPE:
+            currentState.categorie_state.name = d.name.split(":")[1];
+            currentState.categorie_state.zoom = getZoom(CATEGORIE_TYPE, currentState.categorie_state.zoom);
         }
+        console.log(currentState)
         // Add your left click callback logic here
         data_to_graph_filtered(
           {
@@ -490,52 +524,22 @@
         console.log("Right clicked on: ", d.name);
 
         // dezoom
-        if (d.type == ORIGIN_TYPE) {
-          const current_origin_state = currentState.origin_state.zoom;
-          if (current_origin_state == WORLD_ZOOM) {
-            currentState.origin_state.zoom = COUNTRY_ZOOM;
-          } else if (current_origin_state == REGION_ZOOM) {
-            currentState.origin_state.zoom = WORLD_ZOOM;
-          } else if (current_origin_state == SUBREGION_ZOOM) {
-            currentState.origin_state.zoom = REGION_ZOOM;
-          } else {
-            currentState.origin_state.zoom = SUBREGION_ZOOM;
-          }
-          currentState.origin_state.name = d.name.split(":")[1];
-        } else if (d.type == MANUFACTURING_PLACE_TYPE) {
-          const current_manu_state = currentState.manu_state.zoom;
-          if (current_manu_state == WORLD_ZOOM) {
-            currentState.manu_state.zoom = COUNTRY_ZOOM;
-          } else if (current_manu_state == REGION_ZOOM) {
-            currentState.manu_state.zoom = WORLD_ZOOM;
-          } else if (current_manu_state == SUBREGION_ZOOM) {
-            currentState.manu_state.zoom = REGION_ZOOM;
-          } else {
-            currentState.manu_state.zoom = SUBREGION_ZOOM;
-          }
-          currentState.manu_state.name = d.name.split(":")[1];
-        } else if (d.type == SELLING_PALCE_TYPE) {
-          const current_selling_state = currentState.selling_state.zoom;
-          if (current_selling_state == WORLD_ZOOM) {
-            currentState.selling_state.zoom = COUNTRY_ZOOM;
-          } else if (current_selling_state == REGION_ZOOM) {
-            currentState.selling_state.zoom = WORLD_ZOOM;
-          } else if (current_selling_state == SUBREGION_ZOOM) {
-            currentState.selling_state.zoom = REGION_ZOOM;
-          } else {
-            currentState.selling_state.zoom = SUBREGION_ZOOM;
-          }
-          currentState.selling_state.name = d.name.split(":")[1];
-        } else if (d.type == PRODUCT_TYPE) {
-          const current_categorie_state = currentState.categorie_state.zoom;
-          if (current_categorie_state == ALLCATEGORIE_ZOOM) {
-            currentState.categorie_state.zoom = SUBCATEGORIE_ZOOM;
-          } else if (current_categorie_state == CATEGORIE_ZOOM) {
-            currentState.categorie_state.zoom = ALLCATEGORIE_ZOOM;
-          } else if (current_categorie_state == SUBCATEGORIE_ZOOM) {
-            currentState.categorie_state.zoom = CATEGORIE_ZOOM;
-          }
-          currentState.categorie_state.name = d.name.split(":")[1];
+        switch (d.type){
+          case ORIGIN_TYPE:
+            currentState.origin_state.name = getDezoomName(ORIGIN_TYPE, currentState.origin_state.zoom, d.name.split(":")[1]);
+            currentState.origin_state.zoom = getDezoom(ORIGIN_TYPE, currentState.origin_state.zoom);
+            break;
+          case MANUFACTURING_PLACE_TYPE:
+            currentState.manu_state.name = getDezoomName(MANUFACTURING_PLACE_TYPE, currentState.manu_state.zoom, d.name.split(":")[1]);
+            currentState.manu_state.zoom = getDezoom(MANUFACTURING_PLACE_TYPE, currentState.manu_state.zoom);
+            break;
+          case SELLING_PALCE_TYPE:
+            currentState.selling_state.name = getDezoomName(SELLING_PALCE_TYPE, currentState.selling_state.zoom, d.name.split(":")[1]);
+            currentState.selling_state.zoom = getDezoom(SELLING_PALCE_TYPE, currentState.selling_state.zoom);
+            break;
+          case CATEGORIE_TYPE:
+            currentState.categorie_state.name = getDezoomName(CATEGORIE_TYPE, currentState.categorie_state.zoom, d.name.split(":")[1]);
+            currentState.categorie_state.zoom = getDezoom(CATEGORIE_TYPE, currentState.categorie_state.zoom);
         }
 
         data_to_graph_filtered(
