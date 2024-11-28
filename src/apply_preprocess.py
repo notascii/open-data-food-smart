@@ -12,6 +12,7 @@ def read_csv_and_drop_na(nrows: Optional[int] = None) -> pd.DataFrame:
         "origins_tags",  # Ingredient Origin
         "manufacturing_places_tags",  # Manufacturing
         "countries_tags",  # Consumption Place
+        "pnns_groups_2", # Product most precise classification (e.g. "Meat" or "Fruits")
     ]
 
     return pd.read_csv(
@@ -83,6 +84,9 @@ def filter_out_rows_without_standard(
 def main():
     df = read_csv_and_drop_na(nrows=None)
 
+    # remove rows where pnns_groups_2 is either 'unknown' or 'EMB 43089A'
+    df = df[~df.isin(["unknown", "EMB 43089A"]).any(axis=1)]
+
     columns_to_work = ["origins_tags", "manufacturing_places_tags", "countries_tags"]
     for col in columns_to_work:
         # split origins tags in a list, and remove prefix (if any) for each tag in the list
@@ -96,19 +100,22 @@ def main():
     columns_filtered = [col + "_std" for col in columns_to_work]
     filtered_df = filter_out_rows_without_standard(df, columns_filtered)
 
-    filtered_df.to_csv(
-        DATA_DIR_RELATIVE_PATH + "cleaned_data_v2.csv",
-        sep=",",
-        columns=[
-            "product_name",
-            "origins_tags_std",
-            "manufacturing_places_tags_std",
-            "countries_tags_std",
-        ],
-        index=False,
-    )
+    # print(filtered_df.head())
+    # print(filtered_df.shape)
 
-    filtered_df[["product_name", "origins_tags_std", "manufacturing_places_tags_std", "countries_tags_std"]].to_json(
+    # filtered_df.to_csv(
+    #     DATA_DIR_RELATIVE_PATH + "cleaned_data_v2.csv",
+    #     sep=",",
+    #     columns=[
+    #         "product_name",
+    #         "origins_tags_std",
+    #         "manufacturing_places_tags_std",
+    #         "countries_tags_std",
+    #     ],
+    #     index=False,
+    # )
+
+    filtered_df[["product_name", "origins_tags_std", "manufacturing_places_tags_std", "countries_tags_std", "pnns_groups_2"]].to_json(
         DATA_DIR_RELATIVE_PATH + "cleaned_data_v2.json",
         orient="records",
         indent=4,
