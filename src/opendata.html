@@ -41,15 +41,32 @@
   <body>
     <h1>Sankey Diagram - Open Food Facts</h1>
     <div id="sankey-container"></div>
-    <script src="data/countries_to_regions_table.js" type="text/javascript"></script>
-    <script src="data/countries_to_subregions_table.js" type="text/javascript"></script>
-    <script src="data/subregions_to_regions_table.js" type="text/javascript"></script>
-    <script src="data/subregions_to_countries_table.js" type="text/javascript"></script>
-    <script src="data/regions_to_countries_table.js" type="text/javascript"></script>
-    <script src="data/regions_to_subregions_table.js" type="text/javascript"></script>
+    <script
+      src="data/countries_to_regions_table.js"
+      type="text/javascript"
+    ></script>
+    <script
+      src="data/countries_to_subregions_table.js"
+      type="text/javascript"
+    ></script>
+    <script
+      src="data/subregions_to_regions_table.js"
+      type="text/javascript"
+    ></script>
+    <script
+      src="data/subregions_to_countries_table.js"
+      type="text/javascript"
+    ></script>
+    <script
+      src="data/regions_to_countries_table.js"
+      type="text/javascript"
+    ></script>
+    <script
+      src="data/regions_to_subregions_table.js"
+      type="text/javascript"
+    ></script>
     <script src="data/clean_data.js" type="text/javascript"></script>
     <script>
-
       // Set up the SVG container
       const width = 1600;
       const height = 600;
@@ -66,13 +83,12 @@
         .nodePadding(15)
         .size([width - 41, height - 41]);
 
-    
       let nodeIndex = 0;
       const nodes = [];
       const nodeIndexMap = new Map();
 
-      function nodeUniqueName(name, type){
-        return `${type}:${name}`
+      function nodeUniqueName(name, type) {
+        return `${type}:${name}`;
       }
 
       // Helper function to add nodes and create a unique index for each
@@ -85,8 +101,8 @@
           return;
         }
 
-        // create a node if it do not exist          
-        nodes.push({ name:uniqueName, zone:name, type:type, value: 1});
+        // create a node if it do not exist
+        nodes.push({ name: uniqueName, zone: name, type: type, value: 1 });
         nodeIndexMap.set(uniqueName, nodeIndex);
         nodeIndex += 1;
         //console.log(`Adding node : ${uniqueName}`);
@@ -97,7 +113,7 @@
       const links = [];
       const linkIndexMap = new Map();
 
-      function linkUniqueName(node1UniqueName, node2UniqueName){
+      function linkUniqueName(node1UniqueName, node2UniqueName) {
         return `${node1UniqueName} -> ${node2UniqueName}`;
       }
 
@@ -106,7 +122,7 @@
         const node1UniqueName = nodeUniqueName(name1, type1);
         const node2UniqueName = nodeUniqueName(name2, type2);
         const uniqueName = linkUniqueName(node1UniqueName, node2UniqueName);
-        
+
         // increase the value of the link if it already exist
         if (linkIndexMap.has(uniqueName)) {
           links[linkIndexMap.get(uniqueName)].value += 1;
@@ -114,10 +130,15 @@
         }
 
         // create a link if it do not exist
-        links.push({ source:nodeIndexMap.get(node1UniqueName), target:nodeIndexMap.get(node2UniqueName), type:type2, value: 1 });
+        links.push({
+          source: nodeIndexMap.get(node1UniqueName),
+          target: nodeIndexMap.get(node2UniqueName),
+          type: type2,
+          value: 1,
+        });
         linkIndexMap.set(uniqueName, linkIndex);
         linkIndex += 1;
-        //console.log(`Adding link : ${uniqueName}`); 
+        //console.log(`Adding link : ${uniqueName}`);
         return;
       }
 
@@ -125,7 +146,11 @@
       const ORIGIN_TYPE = "origin";
       const MANUFACTURING_PLACE_TYPE = "manu";
       const SELLING_PALCE_TYPE = "selling";
-      const ZONE_TYPES = [ORIGIN_TYPE, MANUFACTURING_PLACE_TYPE, SELLING_PALCE_TYPE]; 
+      const ZONE_TYPES = [
+        ORIGIN_TYPE,
+        MANUFACTURING_PLACE_TYPE,
+        SELLING_PALCE_TYPE,
+      ];
 
       const WORLD_ZOOM = 0;
       const REGION_ZOOM = 1;
@@ -136,27 +161,37 @@
       const CATEGORIE_ZOOM = 1;
       const SUBCATEGORIE_ZOOM = 2;
 
+      // The current state of the schema
+      let currentState = {
+        product_state: { zoom: CATEGORIE_ZOOM },
+        origin_state: { zoom: WORLD_ZOOM },
+        manu_state: { zoom: WORLD_ZOOM },
+        selling_state: { zoom: WORLD_ZOOM },
+      };
 
-      function data_to_graph_filtered({originZoom, nameOrigin}, {manuZoom, nameManu}, {sellingZoom, nameSelling}, {categorieZoom, nameCategorie}) {
+      function data_to_graph_filtered(
+        { originZoom, nameOrigin },
+        { manuZoom, nameManu },
+        { sellingZoom, nameSelling },
+        { categorieZoom, nameCategorie },
+      ) {
         nodes.length = 0;
         links.length = 0;
 
         // adding Nodes
         Object.keys(regions_to_countries).forEach((zone) => {
-          console.log(zone)
+          console.log(zone);
           ZONE_TYPES.forEach((type) => {
             addNode(zone, type);
           });
         });
 
-
         products.map((product) => {
-
           if (!product.product_name) return;
           if (!product.origins_tags_std) return;
           if (!product.manufacturing_places_tags_std) return;
           if (!product.countries_tags_std) return;
-                  
+
           //addNode(product.product_name, PRODUCT_TYPE);
 
           // adding Links
@@ -165,113 +200,272 @@
           //  addLink(product.product_name, PRODUCT_TYPE, origin, ORIGIN_TYPE);
           //});
 
-          product.origins_tags_std.forEach((origin) =>{ 
-            product.manufacturing_places_tags_std.forEach((manu) =>{
-              addLink(countries_to_regions[origin], ORIGIN_TYPE, countries_to_regions[manu], MANUFACTURING_PLACE_TYPE);
+          product.origins_tags_std.forEach((origin) => {
+            product.manufacturing_places_tags_std.forEach((manu) => {
+              addLink(
+                countries_to_regions[origin],
+                ORIGIN_TYPE,
+                countries_to_regions[manu],
+                MANUFACTURING_PLACE_TYPE,
+              );
             });
           });
 
-          product.manufacturing_places_tags_std.forEach((manu) =>{
-            product.countries_tags_std.forEach((sell) =>{
-              addLink(countries_to_regions[manu], MANUFACTURING_PLACE_TYPE, countries_to_regions[sell], SELLING_PALCE_TYPE);
+          product.manufacturing_places_tags_std.forEach((manu) => {
+            product.countries_tags_std.forEach((sell) => {
+              addLink(
+                countries_to_regions[manu],
+                MANUFACTURING_PLACE_TYPE,
+                countries_to_regions[sell],
+                SELLING_PALCE_TYPE,
+              );
             });
           });
-
         });
       }
 
-      
-
       data_to_graph_filtered(
-        {originZoom:WORLD_ZOOM, nameOrigin:""}, 
-        {manuZoom:WORLD_ZOOM, nameManu:""}, 
-        {sellingZoom:WORLD_ZOOM, nameSelling:""}, 
-        {categorieZoom:ALLCATEGORIE_ZOOM, nameCategorie:""}
+        { originZoom: WORLD_ZOOM, nameOrigin: "" },
+        { manuZoom: WORLD_ZOOM, nameManu: "" },
+        { sellingZoom: WORLD_ZOOM, nameSelling: "" },
+        { categorieZoom: ALLCATEGORIE_ZOOM, nameCategorie: "" },
       );
 
-      // Generate the Sankey diagram
-      const { nodes: sankeyNodes, links: sankeyLinks } = sankey({
-        nodes: nodes.map((d) => Object.assign({}, d)),
-        links: links.map((d) => Object.assign({}, d)),
-      });
-
-      // Set node positions based on type to separate columns
-      sankeyNodes.forEach((node) => {
-        if (node.type === PRODUCT_TYPE) {
-          node.x0 = 0;
-          node.x1 = sankey.nodeWidth();
-        } else if (node.type === ORIGIN_TYPE) {
-          node.x0 = width / 4;
-          node.x1 = width / 4 + sankey.nodeWidth();
-        } else if (node.type === MANUFACTURING_PLACE_TYPE) {
-          node.x0 = (2 * width) / 4;
-          node.x1 = (2 * width) / 4 + sankey.nodeWidth();
-        } else if (node.type === SELLING_PALCE_TYPE) {
-          node.x0 = (3 * width) / 4;
-          node.x1 = (3 * width) / 4 + sankey.nodeWidth();
+      function zoomIn(d) {
+        // Left click
+        console.log("Left clicked on: ", d.name);
+        if (d.type == ORIGIN_TYPE) {
+          const current_origin_state = currentState.origin_state.zoom;
+          if (current_origin_state == WORLD_ZOOM) {
+            currentState.origin_state.zoom = REGION_ZOOM;
+          } else if (current_origin_state == REGION_ZOOM) {
+            currentState.origin_state.zoom = SUBREGION_ZOOM;
+          } else if (current_origin_state == SUBREGION_ZOOM) {
+            currentState.origin_state.zoom = COUNTRY_ZOOM;
+          } else {
+            currentState.origin_state.zoom = WORLD_ZOOM;
+          }
+        } else if (d.type == MANUFACTURING_PLACE_TYPE) {
+          const current_manu_state = currentState.manu_state.zoom;
+          if (current_manu_state == WORLD_ZOOM) {
+            currentState.manu_state.zoom = REGION_ZOOM;
+          } else if (current_manu_state == REGION_ZOOM) {
+            currentState.manu_state.zoom = SUBREGION_ZOOM;
+          } else if (current_manu_state == SUBREGION_ZOOM) {
+            currentState.manu_state.zoom = COUNTRY_ZOOM;
+          } else {
+            currentState.manu_state.zoom = WORLD_ZOOM;
+          }
+        } else if (d.type == SELLING_PALCE_TYPE) {
+          const current_selling_state = currentState.selling_state.zoom;
+          if (current_selling_state == WORLD_ZOOM) {
+            currentState.selling_state.zoom = REGION_ZOOM;
+          } else if (current_selling_state == REGION_ZOOM) {
+            currentState.selling_state.zoom = SUBREGION_ZOOM;
+          } else if (current_selling_state == SUBREGION_ZOOM) {
+            currentState.selling_state.zoom = COUNTRY_ZOOM;
+          } else {
+            currentState.selling_state.zoom = WORLD_ZOOM;
+          }
+        } else if (d.type == PRODUCT_TYPE) {
+          const current_product_state = currentState.product_state.zoom;
+          if (current_product_state == ALLCATEGORIE_ZOOM) {
+            currentState.product_state.zoom = CATEGORIE_ZOOM;
+          } else if (current_product_state == CATEGORIE_ZOOM) {
+            currentState.product_state.zoom = SUBCATEGORIE_ZOOM;
+          } else {
+            currentState.product_state.zoom = ALLCATEGORIE_ZOOM;
+          }
         }
-      });
+        // Add your left click callback logic here
+        data_to_graph_filtered(
+          {
+            originZoom: currentState.origin_state.zoom,
+            nameOrigin: d.name.split(":")[1],
+          },
+          {
+            manuZoom: currentState.manu_state.zoom,
+            nameManu: d.name.split(":")[1],
+          },
+          {
+            sellingZoom: currentState.selling_state.zoom,
+            nameSelling: d.name.split(":")[1],
+          },
+          {
+            categorieZoom: currentState.product_state.zoom,
+            nameCategorie: d.name.split(":")[1],
+          },
+        );
 
-      // Draw links
-      svg
-        .append("g")
-        .selectAll("path")
-        .data(sankeyLinks)
-        .join("path")
-        .attr("class", "link")
-        .attr("d", d3.sankeyLinkHorizontal())
-        .attr("stroke-width", (d) => d.width)
-        .attr("stroke", (d) => {
-          if (d.type === ORIGIN_TYPE) {
-            return "#ff7f0e";
-          } else if (d.type === MANUFACTURING_PLACE_TYPE) {
-            return "#2ca02c";
-          } else if (d.type === SELLING_PALCE_TYPE) {
-            return "#1f77b4";
+        drawGraph();
+      }
+
+      function zoomOut(d) {
+        console.log("Right clicked on: ", d.name);
+
+        // dezoom
+        if (d.type == ORIGIN_TYPE) {
+          const current_origin_state = currentState.origin_state.zoom;
+          if (current_origin_state == WORLD_ZOOM) {
+            currentState.origin_state.zoom = COUNTRY_ZOOM;
+          } else if (current_origin_state == REGION_ZOOM) {
+            currentState.origin_state.zoom = WORLD_ZOOM;
+          } else if (current_origin_state == SUBREGION_ZOOM) {
+            currentState.origin_state.zoom = REGION_ZOOM;
           } else {
-            return "#6baed6";
+            currentState.origin_state.zoom = SUBREGION_ZOOM;
+          }
+        } else if (d.type == MANUFACTURING_PLACE_TYPE) {
+          const current_manu_state = currentState.manu_state.zoom;
+          if (current_manu_state == WORLD_ZOOM) {
+            currentState.manu_state.zoom = COUNTRY_ZOOM;
+          } else if (current_manu_state == REGION_ZOOM) {
+            currentState.manu_state.zoom = WORLD_ZOOM;
+          } else if (current_manu_state == SUBREGION_ZOOM) {
+            currentState.manu_state.zoom = REGION_ZOOM;
+          } else {
+            currentState.manu_state.zoom = SUBREGION_ZOOM;
+          }
+        } else if (d.type == SELLING_PALCE_TYPE) {
+          const current_selling_state = currentState.selling_state.zoom;
+          if (current_selling_state == WORLD_ZOOM) {
+            currentState.selling_state.zoom = COUNTRY_ZOOM;
+          } else if (current_selling_state == REGION_ZOOM) {
+            currentState.selling_state.zoom = WORLD_ZOOM;
+          } else if (current_selling_state == SUBREGION_ZOOM) {
+            currentState.selling_state.zoom = REGION_ZOOM;
+          } else {
+            currentState.selling_state.zoom = SUBREGION_ZOOM;
+          }
+        } else if (d.type == PRODUCT_TYPE) {
+          const current_product_state = currentState.product_state.zoom;
+          if (current_product_state == ALLCATEGORIE_ZOOM) {
+            currentState.product_state.zoom = SUBCATEGORIE_ZOOM;
+          } else if (current_product_state == CATEGORIE_ZOOM) {
+            currentState.product_state.zoom = ALLCATEGORIE_ZOOM;
+          } else {
+            currentState.product_state.zoom = CATEGORIE_ZOOM;
+          }
+        }
+
+        data_to_graph_filtered(
+          {
+            originZoom: currentState.origin_state.zoom,
+            nameOrigin: d.name.split(":")[1],
+          },
+          {
+            manuZoom: currentState.manu_state.zoom,
+            nameManu: d.name.split(":")[1],
+          },
+          {
+            sellingZoom: currentState.selling_state.zoom,
+            nameSelling: d.name.split(":")[1],
+          },
+          {
+            categorieZoom: currentState.product_state.zoom,
+            nameCategorie: d.name.split(":")[1],
+          },
+        );
+
+        drawGraph();
+      }
+
+      // function to draw the graph
+      // will update the graph with the new data
+      function drawGraph() {
+        // Generate the Sankey diagram
+        const { nodes: sankeyNodes, links: sankeyLinks } = sankey({
+          nodes: nodes.map((d) => Object.assign({}, d)),
+          links: links.map((d) => Object.assign({}, d)),
+        });
+
+        // Set node positions based on type to separate columns
+        sankeyNodes.forEach((node) => {
+          if (node.type === PRODUCT_TYPE) {
+            node.x0 = 0;
+            node.x1 = sankey.nodeWidth();
+          } else if (node.type === ORIGIN_TYPE) {
+            node.x0 = width / 4;
+            node.x1 = width / 4 + sankey.nodeWidth();
+          } else if (node.type === MANUFACTURING_PLACE_TYPE) {
+            node.x0 = (2 * width) / 4;
+            node.x1 = (2 * width) / 4 + sankey.nodeWidth();
+          } else if (node.type === SELLING_PALCE_TYPE) {
+            node.x0 = (3 * width) / 4;
+            node.x1 = (3 * width) / 4 + sankey.nodeWidth();
           }
         });
 
-      // Draw nodes
-      const node = svg
-        .append("g")
-        .selectAll("g")
-        .data(sankeyNodes)
-        .join("g")
-        .attr("class", "node");
-        
+        // Draw links
+        svg
+          .append("g")
+          .selectAll("path")
+          .data(sankeyLinks)
+          .join("path")
+          .attr("class", "link")
+          .attr("d", d3.sankeyLinkHorizontal())
+          .attr("stroke-width", (d) => d.width)
+          .attr("stroke", (d) => {
+            if (d.type === ORIGIN_TYPE) {
+              return "#ff7f0e";
+            } else if (d.type === MANUFACTURING_PLACE_TYPE) {
+              return "#2ca02c";
+            } else if (d.type === SELLING_PALCE_TYPE) {
+              return "#1f77b4";
+            } else {
+              return "#6baed6";
+            }
+          });
 
-      node
-        .append("rect")
-        .attr("x", (d) => d.x0)
-        .attr("y", (d) => d.y0)
-        .attr("height", (d) => Math.max(1, d.y1 - d.y0))
-        .attr("width", (d) => 20)
-        .attr("stroke", (d) => {
-          if (d.type === ORIGIN_TYPE) {
-            return "#ff7f0e";
-          } else if (d.type === MANUFACTURING_PLACE_TYPE) {
-            return "#2ca02c";
-          } else if (d.type === SELLING_PALCE_TYPE) {
-            return "#1f77b4";
-          } else {
-            return "#6baed6";
-          }
-        });
+        // Draw nodes
+        const node = svg
+          .append("g")
+          .selectAll("g")
+          .data(sankeyNodes)
+          .join("g")
+          .attr("class", "node")
+          .on("click", (event, d) => {
+            if (event.button === 0) {
+              zoomIn(d);
+            }
+          })
+          .on("contextmenu", (event, d) => {
+            event.preventDefault();
+            zoomOut(d);
+          });
 
-      // Add labels (hidden by default, shown on hover)
-      node
-        .append("text")
-        .attr("x", (d) => d.x0 - 6)
-        .attr("y", (d) => (d.y1 + d.y0) / 2)
-        .attr("dy", "0.35em")
-        .attr("text-anchor", "end")
-        .text((d) => d.name)
-        .filter((d) => d.x0 < width / 2)
-        .attr("x", (d) => d.x1 + 6)
-        .attr("text-anchor", "start");
-      
+        node
+          .append("rect")
+          .attr("x", (d) => d.x0)
+          .attr("y", (d) => d.y0)
+          .attr("height", (d) => Math.max(1, d.y1 - d.y0))
+          .attr("width", (d) => 20)
+          .attr("stroke", (d) => {
+            if (d.type === ORIGIN_TYPE) {
+              return "#ff7f0e";
+            } else if (d.type === MANUFACTURING_PLACE_TYPE) {
+              return "#2ca02c";
+            } else if (d.type === SELLING_PALCE_TYPE) {
+              return "#1f77b4";
+            } else {
+              return "#6baed6";
+            }
+          });
+
+        // Add labels (hidden by default, shown on hover)
+        node
+          .append("text")
+          .attr("x", (d) => d.x0 - 6)
+          .attr("y", (d) => (d.y1 + d.y0) / 2)
+          .attr("dy", "0.35em")
+          .attr("text-anchor", "end")
+          .text((d) => d.name)
+          .filter((d) => d.x0 < width / 2)
+          .attr("x", (d) => d.x1 + 6)
+          .attr("text-anchor", "start");
+      }
+
+      drawGraph();
     </script>
   </body>
 </html>
