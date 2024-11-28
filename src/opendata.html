@@ -1,668 +1,643 @@
 <!doctype html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sankey Diagram - Open Food Facts</title>
     <script src="../vendor/d3-7.8.5/dist/d3.js"></script>
     <script src="../vendor/d3-sankey.js"></script>
 
-    <!-- <script src="https://unpkg.com/d3-array@1"></script>
-    <script src="https://unpkg.com/d3-collection@1"></script>
-    <script src="https://unpkg.com/d3-path@1"></script>
-    <script src="https://unpkg.com/d3-shape@1"></script>
-    <script src="https://unpkg.com/d3-sankey@0"></script> -->
     <style>
-      body {
-        font-family: Arial, sans-serif;
-      }
-      #sankey-container {
-        width: 100%;
-        height: 100%;
-        margin: 0 auto;
-      }
-      svg {
-        border: 1px solid #ccc;
-      }
-      .node rect {
-        fill: #3182bd;
-        stroke: #000;
-      }
-      .link {
-        fill: none;
-        stroke-opacity: 0.7;
-      }
-      .node text {
-        display: none;
-      }
-      .node:hover text {
-        display: block;
-      }
+        body {
+            font-family: Arial, sans-serif;
+        }
+        #sankey-container {
+            width: 100%;
+            height: 100%;
+            margin: 0 auto;
+        }
+        svg {
+            border: 1px solid #ccc;
+        }
+        .node rect {
+            fill: #3182bd;
+            stroke: #000;
+        }
+        .link {
+            fill: none;
+            stroke-opacity: 0.7;
+        }
+        .node text {
+            display: none;
+        }
+        .node:hover text {
+            display: block;
+        }
     </style>
-  </head>
-  <body>
+</head>
+<body>
     <h1>Sankey Diagram - Open Food Facts</h1>
     <div id="sankey-container"></div>
-    <script
-      src="data/countries_to_regions_table.js"
-      type="text/javascript"
-    ></script>
-    <script
-      src="data/countries_to_subregions_table.js"
-      type="text/javascript"
-    ></script>
-    <script
-      src="data/subregions_to_regions_table.js"
-      type="text/javascript"
-    ></script>
-    <script
-      src="data/subregions_to_countries_table.js"
-      type="text/javascript"
-    ></script>
-    <script
-      src="data/regions_to_countries_table.js"
-      type="text/javascript"
-    ></script>
-    <script
-      src="data/regions_to_subregions_table.js"
-      type="text/javascript"
-    ></script>
-    <script src="data/g2_to_g1.js" type="text/javascript"></script>
-    <script src="data/g1_to_g2.js" type="text/javascript"></script>
-    <script src="data/clean_data.js" type="text/javascript"></script>
-    <script>
-      // Set up the SVG container
-      const width = 1600;
-      const height = 600;
-      const svg = d3
-        .select("#sankey-container")
-        .append("svg")
-        .attr("width", width)
-        .attr("height", height);
+        <script src="data/countries_to_regions_table.js" type="text/javascript"></script>
+        <script src="data/countries_to_subregions_table.js" type="text/javascript"></script>
+        <script src="data/subregions_to_regions_table.js" type="text/javascript"></script>
+        <script src="data/subregions_to_countries_table.js" type="text/javascript"></script>
+        <script src="data/regions_to_countries_table.js" type="text/javascript"></script>
+        <script src="data/regions_to_subregions_table.js" type="text/javascript"></script>
+        <script src="data/g2_to_g1.js" type="text/javascript"></script>
+        <script src="data/g1_to_g2.js" type="text/javascript"></script>
+        <script src="data/clean_data.js" type="text/javascript"></script>
 
-      // Create Sankey generator
-      const sankey_ = d3.sankey()
-        .nodeWidth(20)
-        .nodePadding(15)
-        .size([width - 41, height - 41]);
+        <script>
+// Set up the SVG container
+const width = 1600;
+const height = 600;
+const svg = d3
+    .select("#sankey-container")
+    .append("svg")
+    .attr("width", width)
+    .attr("height", height);
 
-      let nodeIndex = 0;
-      const nodes = [];
-      const nodeIndexMap = new Map();
+// Create Sankey generator
+const sankey_ = d3.sankey()
+    .nodeWidth(20)
+    .nodePadding(15)
+    .size([width - 41, height - 41]);
 
-      function nodeUniqueName(name, type) {
-        return `${type}:${name}`;
-      }
+let nodeIndex = 0;
+const nodes = [];
+const nodeIndexMap = new Map();
 
-      // Helper function to add nodes and create a unique index for each
-      function addNode(name, type) {
-        // get unique name
-        const uniqueName = nodeUniqueName(name, type);
+function nodeUniqueName(name, type) {
+    return `${type}:${name}`;
+}
 
-        // return the node if it already exist
-        if (nodeIndexMap.has(uniqueName)) {
-          return;
-        }
+// Helper function to add nodes and create a unique index for each
+function addNode(name, type) {
+    // get unique name
+    const uniqueName = nodeUniqueName(name, type);
 
-        // create a node if it do not exist
-        nodes.push({ name: uniqueName, zone: name, type: type, value: 1 });
-        nodeIndexMap.set(uniqueName, nodeIndex);
-        nodeIndex += 1;
+    // return the node if it already exist
+    if (nodeIndexMap.has(uniqueName)) {
         return;
-      }
+    }
 
-      let linkIndex = 0;
-      const links = [];
-      const linkIndexMap = new Map();
+    // create a node if it do not exist
+    nodes.push({ name: uniqueName, zone: name, type: type, value: 1 });
+    nodeIndexMap.set(uniqueName, nodeIndex);
+    nodeIndex += 1;
+    return;
+}
 
-      function linkUniqueName(node1UniqueName, node2UniqueName) {
-        return `${node1UniqueName} -> ${node2UniqueName}`;
-      }
+let linkIndex = 0;
+const links = [];
+const linkIndexMap = new Map();
 
-      function addLink(name1, type1, name2, type2) {
-        // get unique name
-        const node1UniqueName = nodeUniqueName(name1, type1);
-        const node2UniqueName = nodeUniqueName(name2, type2);
-        const uniqueName = linkUniqueName(node1UniqueName, node2UniqueName);
+function linkUniqueName(node1UniqueName, node2UniqueName) {
+    return `${node1UniqueName} -> ${node2UniqueName}`;
+}
 
-        // increase the value of the link if it already exist
-        if (linkIndexMap.has(uniqueName)) {
-          links[linkIndexMap.get(uniqueName)].value += 1;
-          return;
-        }
+function addLink(name1, type1, name2, type2) {
+    // get unique name
+    const node1UniqueName = nodeUniqueName(name1, type1);
+    const node2UniqueName = nodeUniqueName(name2, type2);
+    const uniqueName = linkUniqueName(node1UniqueName, node2UniqueName);
 
-        // create a link if it do not exist
-        links.push({
-          source: nodeIndexMap.get(node1UniqueName),
-          target: nodeIndexMap.get(node2UniqueName),
-          type: type2,
-          value: 1,
-          origin: name1,
-        });
-        linkIndexMap.set(uniqueName, linkIndex);
-        linkIndex += 1;
+    // increase the value of the link if it already exist
+    if (linkIndexMap.has(uniqueName)) {
+        links[linkIndexMap.get(uniqueName)].value += 1;
         return;
-      }
+    }
 
-      const PRODUCT_TYPE = "product";
-      const ORIGIN_TYPE = "origin";
-      const MANUFACTURING_PLACE_TYPE = "manu";
-      const SELLING_PALCE_TYPE = "selling";
-      const CATEGORIE_TYPE = "categorie";
+    // create a link if it do not exist
+    links.push({
+        source: nodeIndexMap.get(node1UniqueName),
+        target: nodeIndexMap.get(node2UniqueName),
+        type: type2,
+        value: 1,
+        origin: name1,
+    });
+    linkIndexMap.set(uniqueName, linkIndex);
+    linkIndex += 1;
+    return;
+}
 
-      const WORLD_ZOOM = 0;
-      const REGION_ZOOM = 1;
-      const SUBREGION_ZOOM = 2;
-      const COUNTRY_ZOOM = 3;
+const PRODUCT_TYPE = "product";
+const ORIGIN_TYPE = "origin";
+const MANUFACTURING_PLACE_TYPE = "manu";
+const SELLING_PLACE_TYPE = "selling";
+const CATEGORIE_TYPE = "categorie";
 
-      const ALLCATEGORIE_ZOOM = 0;
-      const CATEGORIE_ZOOM = 1;
-      const SUBCATEGORIE_ZOOM = 2;
+const WORLD_ZOOM = 0;
+const REGION_ZOOM = 1;
+const SUBREGION_ZOOM = 2;
+const COUNTRY_ZOOM = 3;
 
-      function map_zoom_to_groups(type, zoom, name) {
-        switch (type) {
-          case ORIGIN_TYPE:
-          case MANUFACTURING_PLACE_TYPE:
-          case SELLING_PALCE_TYPE:
+const ALLCATEGORIE_ZOOM = 0;
+const CATEGORIE_ZOOM = 1;
+const SUBCATEGORIE_ZOOM = 2;
+
+function map_zoom_to_groups(type, zoom, name) {
+    switch (type) {
+        case ORIGIN_TYPE:
+        case MANUFACTURING_PLACE_TYPE:
+        case SELLING_PLACE_TYPE:
             switch (zoom) {
-              case WORLD_ZOOM:
-                return Object.keys(regions_to_countries);
-              case REGION_ZOOM:
-                return regions_to_subregions[name];
-              case SUBREGION_ZOOM:
-                return subregions_to_countries[name];
-              case COUNTRY_ZOOM:
-                return [name];
+                case WORLD_ZOOM:
+                    return Object.keys(regions_to_countries);
+                case REGION_ZOOM:
+                    return regions_to_subregions[name];
+                case SUBREGION_ZOOM:
+                    return subregions_to_countries[name];
+                case COUNTRY_ZOOM:
+                    return [name];
             }
             break;
 
-          case CATEGORIE_TYPE:
+        case CATEGORIE_TYPE:
             switch (zoom) {
-              case ALLCATEGORIE_ZOOM:
-                return Object.keys(g1_to_g2);
-              case CATEGORIE_ZOOM:
-                return g1_to_g2[name];
-              case SUBCATEGORIE_ZOOM:
-                return [name];
+                case ALLCATEGORIE_ZOOM:
+                    return Object.keys(g1_to_g2);
+                case CATEGORIE_ZOOM:
+                    return g1_to_g2[name];
+                case SUBCATEGORIE_ZOOM:
+                    return [name];
             }
             break;
-        }
-        console.log("invalid map : t:", type, " - z:", zoom, " - n:", name);
-        return [];
-      }
+    }
+    console.log("invalid map : t:", type, " - z:", zoom, " - n:", name);
+    return [];
+}
 
-      function get_highzoom_to_zoom_dict(type, zoom) {
-        switch (type) {
-          case ORIGIN_TYPE:
-          case MANUFACTURING_PLACE_TYPE:
-          case SELLING_PALCE_TYPE:
+function get_highzoom_to_zoom_dict(type, zoom) {
+    switch (type) {
+        case ORIGIN_TYPE:
+        case MANUFACTURING_PLACE_TYPE:
+        case SELLING_PLACE_TYPE:
             switch (zoom) {
-              case WORLD_ZOOM:
-                return (c) => countries_to_regions[c];
-              case REGION_ZOOM:
-                return (c) => countries_to_subregions[c];
-              case SUBREGION_ZOOM:
-                return (c) => c;
-              case COUNTRY_ZOOM:
-                return (c) => c;
+                case WORLD_ZOOM:
+                    return (c) => countries_to_regions[c];
+                case REGION_ZOOM:
+                    return (c) => countries_to_subregions[c];
+                case SUBREGION_ZOOM:
+                    return (c) => c;
+                case COUNTRY_ZOOM:
+                    return (c) => c;
             }
             break;
 
-          case CATEGORIE_TYPE:
+        case CATEGORIE_TYPE:
             switch (zoom) {
-              case ALLCATEGORIE_ZOOM:
-                return (c) => g2_to_g1[c];
-              case CATEGORIE_ZOOM:
-                return (c) => c;
-              case SUBCATEGORIE_ZOOM:
-                return (c) => c;
+                case ALLCATEGORIE_ZOOM:
+                    return (c) => g2_to_g1[c];
+                case CATEGORIE_ZOOM:
+                    return (c) => c;
+                case SUBCATEGORIE_ZOOM:
+                    return (c) => c;
             }
             break;
-        }
-        console.log("invalid map : t:", type, " - z:", zoom);
-        return false;
-      }
+    }
+    console.log("invalid map : t:", type, " - z:", zoom);
+    return false;
+}
 
-      const DEFAULT_VIEW = {
-        origin: { originZoom: WORLD_ZOOM, nameOrigin: "" },
-        manufacturing: { manuZoom: WORLD_ZOOM, nameManu: "" },
-        selling_place: { sellingZoom: WORLD_ZOOM, nameSelling: "" },
-        categorie: {
-          categorieZoom: ALLCATEGORIE_ZOOM,
-          nameCategorie: "",
-        },
-      };
+const DEFAULT_VIEW = {
+    origin: { originZoom: WORLD_ZOOM, nameOrigin: "" },
+    manufacturing: { manuZoom: WORLD_ZOOM, nameManu: "" },
+    selling_place: { sellingZoom: WORLD_ZOOM, nameSelling: "" },
+    categorie: {
+        categorieZoom: ALLCATEGORIE_ZOOM,
+        nameCategorie: "",
+    },
+};
 
-      // The current state of the schema
-      let currentState = {
-        categorie_state: {
-          zoom: DEFAULT_VIEW.categorie.categorieZoom,
-          name: DEFAULT_VIEW.categorie.nameCategorie,
-        },
-        origin_state: {
-          zoom: DEFAULT_VIEW.origin.originZoom,
-          name: DEFAULT_VIEW.origin.nameOrigin,
-        },
-        manu_state: {
-          zoom: DEFAULT_VIEW.manufacturing.manuZoom,
-          name: DEFAULT_VIEW.manufacturing.nameManu,
-        },
-        selling_state: {
-          zoom: DEFAULT_VIEW.selling_place.sellingZoom,
-          name: DEFAULT_VIEW.selling_place.nameSelling,
-        },
-      };
+// The current state of the schema
+let currentState = {
+    categorie_state: {
+        zoom: DEFAULT_VIEW.categorie.categorieZoom,
+        name: DEFAULT_VIEW.categorie.nameCategorie,
+    },
+    origin_state: {
+        zoom: DEFAULT_VIEW.origin.originZoom,
+        name: DEFAULT_VIEW.origin.nameOrigin,
+    },
+    manu_state: {
+        zoom: DEFAULT_VIEW.manufacturing.manuZoom,
+        name: DEFAULT_VIEW.manufacturing.nameManu,
+    },
+    selling_state: {
+        zoom: DEFAULT_VIEW.selling_place.sellingZoom,
+        name: DEFAULT_VIEW.selling_place.nameSelling,
+    },
+};
 
-      function data_to_graph_filtered(
-        { originZoom, nameOrigin },
-        { manuZoom, nameManu },
-        { sellingZoom, nameSelling },
-        { categorieZoom, nameCategorie },
-      ) {
-        nodes.length = 0;
-        nodeIndex = 0;
-        nodeIndexMap.clear();
+function data_to_graph_filtered(
+    { originZoom, nameOrigin },
+    { manuZoom, nameManu },
+    { sellingZoom, nameSelling },
+    { categorieZoom, nameCategorie },
+) {
+    nodes.length = 0;
+    nodeIndex = 0;
+    nodeIndexMap.clear();
 
-        linkIndex = 0;
-        links.length = 0;
-        linkIndexMap.clear();
+    linkIndex = 0;
+    links.length = 0;
+    linkIndexMap.clear();
 
-        // get groups of allowed elts
-        const filtered_origin_groups = map_zoom_to_groups(
-          ORIGIN_TYPE,
-          originZoom,
-          nameOrigin,
-        );
-        const filtered_manu_groups = map_zoom_to_groups(
-          MANUFACTURING_PLACE_TYPE,
-          manuZoom,
-          nameManu,
-        );
-        const filtered_selling_groups = map_zoom_to_groups(
-          SELLING_PALCE_TYPE,
-          sellingZoom,
-          nameSelling,
-        );
-        const filtered_cat_groups = map_zoom_to_groups(
-          CATEGORIE_TYPE,
-          categorieZoom,
-          nameCategorie,
-        );
+    // get groups of allowed elts
+    const filtered_origin_groups = map_zoom_to_groups(
+        ORIGIN_TYPE,
+        originZoom,
+        nameOrigin,
+    );
+    const filtered_manu_groups = map_zoom_to_groups(
+        MANUFACTURING_PLACE_TYPE,
+        manuZoom,
+        nameManu,
+    );
+    const filtered_selling_groups = map_zoom_to_groups(
+        SELLING_PLACE_TYPE,
+        sellingZoom,
+        nameSelling,
+    );
+    const filtered_cat_groups = map_zoom_to_groups(
+        CATEGORIE_TYPE,
+        categorieZoom,
+        nameCategorie,
+    );
 
-        // adding Nodes
-        filtered_origin_groups.forEach((zone) => {
-          addNode(zone, ORIGIN_TYPE);
-        });
+    // adding Nodes
+    filtered_origin_groups.forEach((zone) => {
+        addNode(zone, ORIGIN_TYPE);
+    });
 
-        filtered_manu_groups.forEach((zone) => {
-          addNode(zone, MANUFACTURING_PLACE_TYPE);
-        });
+    filtered_manu_groups.forEach((zone) => {
+        addNode(zone, MANUFACTURING_PLACE_TYPE);
+    });
 
-        filtered_selling_groups.forEach((zone) => {
-          addNode(zone, SELLING_PALCE_TYPE);
-        });
+    filtered_selling_groups.forEach((zone) => {
+        addNode(zone, SELLING_PLACE_TYPE);
+    });
 
-        filtered_cat_groups.forEach((zone) => {
-          addNode(zone, CATEGORIE_TYPE);
-        });
+    filtered_cat_groups.forEach((zone) => {
+        addNode(zone, CATEGORIE_TYPE);
+    });
 
-        const origin_dict = get_highzoom_to_zoom_dict(ORIGIN_TYPE, originZoom);
-        const manu_dict = get_highzoom_to_zoom_dict(
-          MANUFACTURING_PLACE_TYPE,
-          manuZoom,
-        );
-        const selling_dict = get_highzoom_to_zoom_dict(
-          SELLING_PALCE_TYPE,
-          sellingZoom,
-        );
-        const cat_dict = get_highzoom_to_zoom_dict(
-          CATEGORIE_TYPE,
-          categorieZoom,
-        );
+    const origin_dict = get_highzoom_to_zoom_dict(ORIGIN_TYPE, originZoom);
+    const manu_dict = get_highzoom_to_zoom_dict(
+        MANUFACTURING_PLACE_TYPE,
+        manuZoom,
+    );
+    const selling_dict = get_highzoom_to_zoom_dict(
+        SELLING_PLACE_TYPE,
+        sellingZoom,
+    );
+    const cat_dict = get_highzoom_to_zoom_dict(
+        CATEGORIE_TYPE,
+        categorieZoom,
+    );
 
-        products.map((product) => {
-          if (!product.product_name) return;
-          if (!product.origins_tags_std) return;
-          if (!product.manufacturing_places_tags_std) return;
-          if (!product.countries_tags_std) return;
+    products.map((product) => {
+        if (!product.product_name) return;
+        if (!product.origins_tags_std) return;
+        if (!product.manufacturing_places_tags_std) return;
+        if (!product.countries_tags_std) return;
 
-          oml = [];
-          product.origins_tags_std.forEach((origin) => {
+        oml = [];
+        product.origins_tags_std.forEach((origin) => {
             product.manufacturing_places_tags_std.forEach((manu) => {
-              o = origin_dict(origin);
-              m = manu_dict(manu);
-              if (
-                filtered_origin_groups.includes(o) &&
-                filtered_manu_groups.includes(m)
-              ) {
-                oml.push({
-                  o: o,
-                  ot: ORIGIN_TYPE,
-                  m: m,
-                  mt: MANUFACTURING_PLACE_TYPE,
-                });
-              }
+                o = origin_dict(origin);
+                m = manu_dict(manu);
+                if (
+                    filtered_origin_groups.includes(o) &&
+                    filtered_manu_groups.includes(m)
+                ) {
+                    oml.push({
+                        o: o,
+                        ot: ORIGIN_TYPE,
+                        m: m,
+                        mt: MANUFACTURING_PLACE_TYPE,
+                    });
+                }
             });
-          });
+        });
 
-          mcl = [];
-          product.manufacturing_places_tags_std.forEach((manu) => {
+        mcl = [];
+        product.manufacturing_places_tags_std.forEach((manu) => {
             product.countries_tags_std.forEach((sell) => {
-              m = manu_dict(manu);
-              s = selling_dict(sell);
-              if (
-                filtered_manu_groups.includes(m) &&
-                filtered_selling_groups.includes(s)
-              ) {
-                mcl.push({
-                  m: m,
-                  mt: MANUFACTURING_PLACE_TYPE,
-                  s: s,
-                  st: SELLING_PALCE_TYPE,
-                });
-              }
+                m = manu_dict(manu);
+                s = selling_dict(sell);
+                if (
+                    filtered_manu_groups.includes(m) &&
+                    filtered_selling_groups.includes(s)
+                ) {
+                    mcl.push({
+                        m: m,
+                        mt: MANUFACTURING_PLACE_TYPE,
+                        s: s,
+                        st: SELLING_PLACE_TYPE,
+                    });
+                }
             });
-          });
+        });
 
-          ccl = [];
-          product.countries_tags_std.forEach((sell) => {
+        ccl = [];
+        product.countries_tags_std.forEach((sell) => {
             s = selling_dict(sell);
             c = cat_dict(product.pnns_groups_2);
             if (
-              filtered_selling_groups.includes(s) &&
-              filtered_cat_groups.includes(c)
+                filtered_selling_groups.includes(s) &&
+                filtered_cat_groups.includes(c)
             ) {
-              ccl.push({
-                s: s,
-                st: SELLING_PALCE_TYPE,
-                c: c,
-                ct: CATEGORIE_TYPE,
-              });
+                ccl.push({
+                    s: s,
+                    st: SELLING_PLACE_TYPE,
+                    c: c,
+                    ct: CATEGORIE_TYPE,
+                });
             }
-          });
+        });
 
-          if (oml.length > 0 && mcl.length > 0 && ccl.length > 0) {
+        if (oml.length > 0 && mcl.length > 0 && ccl.length > 0) {
             oml.forEach(({ o, ot, m, mt }) => {
-              addLink(o, ot, m, mt);
+                addLink(o, ot, m, mt);
             });
             mcl.forEach(({ m, mt, s, st }) => {
-              addLink(m, mt, s, st);
+                addLink(m, mt, s, st);
             });
             ccl.forEach(({ s, st, c, ct }) => {
-              addLink(s, st, c, ct);
+                addLink(s, st, c, ct);
             });
-          }
-        });
-      }
-
-      data_to_graph_filtered(
-        DEFAULT_VIEW.origin,
-        DEFAULT_VIEW.manufacturing,
-        DEFAULT_VIEW.selling_place,
-        DEFAULT_VIEW.categorie,
-      );
-
-      function getZoom(type, currentState) {
-        switch (type) {
-          case ORIGIN_TYPE:
-          case MANUFACTURING_PLACE_TYPE:
-          case SELLING_PALCE_TYPE:
-            switch (currentState) {
-              case WORLD_ZOOM: return REGION_ZOOM;
-              case REGION_ZOOM: return SUBREGION_ZOOM;
-              case SUBCATEGORIE_ZOOM: return COUNTRY_ZOOM;
-              case COUNTRY_ZOOM: return COUNTRY_ZOOM;
-            }
-            break;
-
-          case CATEGORIE_TYPE:
-            switch (currentState) {
-              case ALLCATEGORIE_ZOOM: return CATEGORIE_ZOOM;
-              case CATEGORIE_ZOOM: return SUBCATEGORIE_ZOOM;
-              case SUBCATEGORIE_ZOOM: return SUBCATEGORIE_ZOOM;
-            }
         }
-      }
+    });
+}
 
-      function getDezoom(type, currentState) {
-        switch (type) {
-          case ORIGIN_TYPE:
-          case MANUFACTURING_PLACE_TYPE:
-          case SELLING_PALCE_TYPE:
+data_to_graph_filtered(
+    DEFAULT_VIEW.origin,
+    DEFAULT_VIEW.manufacturing,
+    DEFAULT_VIEW.selling_place,
+    DEFAULT_VIEW.categorie,
+);
+
+function getZoom(type, currentState) {
+    switch (type) {
+        case ORIGIN_TYPE:
+        case MANUFACTURING_PLACE_TYPE:
+        case SELLING_PLACE_TYPE:
             switch (currentState) {
-              case WORLD_ZOOM: return WORLD_ZOOM;
-              case REGION_ZOOM: return WORLD_ZOOM;
-              case SUBCATEGORIE_ZOOM: return REGION_ZOOM;
-              case COUNTRY_ZOOM: return SUBCATEGORIE_ZOOM;
+                case WORLD_ZOOM: return REGION_ZOOM;
+                case REGION_ZOOM: return SUBREGION_ZOOM;
+                case SUBCATEGORIE_ZOOM: return COUNTRY_ZOOM;
+                case COUNTRY_ZOOM: return COUNTRY_ZOOM;
             }
             break;
 
-          case CATEGORIE_TYPE:
+        case CATEGORIE_TYPE:
             switch (currentState) {
-              case ALLCATEGORIE_ZOOM: return ALLCATEGORIE_ZOOM;
-              case CATEGORIE_ZOOM: return ALLCATEGORIE_ZOOM;
-              case SUBCATEGORIE_ZOOM: return CATEGORIE_ZOOM;
+                case ALLCATEGORIE_ZOOM: return CATEGORIE_ZOOM;
+                case CATEGORIE_ZOOM: return SUBCATEGORIE_ZOOM;
+                case SUBCATEGORIE_ZOOM: return SUBCATEGORIE_ZOOM;
             }
-        }
-      }
+    }
+}
 
-      function getDezoomName(type, zoom, name) {
-        console.log(type, zoom, currentState);
-        switch (type) {
-          case ORIGIN_TYPE:
-          case MANUFACTURING_PLACE_TYPE:
-          case SELLING_PALCE_TYPE:
-            switch (zoom) {
-              case WORLD_ZOOM: 
-                return "";
-              case REGION_ZOOM: 
-                return "";
-              case SUBREGION_ZOOM: 
-                return countries_to_regions[name];
-              case COUNTRY_ZOOM: 
-                return countries_to_subregions[name];
+function getDezoom(type, currentState) {
+    switch (type) {
+        case ORIGIN_TYPE:
+        case MANUFACTURING_PLACE_TYPE:
+        case SELLING_PLACE_TYPE:
+            switch (currentState) {
+                case WORLD_ZOOM: return WORLD_ZOOM;
+                case REGION_ZOOM: return WORLD_ZOOM;
+                case SUBCATEGORIE_ZOOM: return REGION_ZOOM;
+                case COUNTRY_ZOOM: return SUBCATEGORIE_ZOOM;
             }
             break;
 
-          case CATEGORIE_TYPE:
+        case CATEGORIE_TYPE:
+            switch (currentState) {
+                case ALLCATEGORIE_ZOOM: return ALLCATEGORIE_ZOOM;
+                case CATEGORIE_ZOOM: return ALLCATEGORIE_ZOOM;
+                case SUBCATEGORIE_ZOOM: return CATEGORIE_ZOOM;
+            }
+    }
+}
+
+function getDezoomName(type, zoom, name) {
+    console.log(type, zoom, currentState);
+    switch (type) {
+        case ORIGIN_TYPE:
+        case MANUFACTURING_PLACE_TYPE:
+        case SELLING_PLACE_TYPE:
             switch (zoom) {
-              case ALLCATEGORIE_ZOOM: 
-                return "";
-              case CATEGORIE_ZOOM:
-                return g2_to_g1[name];
-              case SUBCATEGORIE_ZOOM:
-                return g2_to_g1[name];
+                case WORLD_ZOOM: 
+                    return "";
+                case REGION_ZOOM: 
+                    return "";
+                case SUBREGION_ZOOM: 
+                    return countries_to_regions[name];
+                case COUNTRY_ZOOM: 
+                    return countries_to_subregions[name];
+            }
+            break;
+
+        case CATEGORIE_TYPE:
+            switch (zoom) {
+                case ALLCATEGORIE_ZOOM: 
+                    return "";
+                case CATEGORIE_ZOOM:
+                    return g2_to_g1[name];
+                case SUBCATEGORIE_ZOOM:
+                    return g2_to_g1[name];
             }
             break
-        }
-      }
+    }
+}
 
-      function zoomIn(d) {
-        // Left click
-        console.log("Left clicked on: ", d.name);
-        switch (d.type){
-          case ORIGIN_TYPE:
+function zoomIn(d) {
+    // Left click
+    console.log("Left clicked on: ", d.name);
+    switch (d.type){
+        case ORIGIN_TYPE:
             currentState.origin_state.name = d.name.split(":")[1];
             currentState.origin_state.zoom = getZoom(ORIGIN_TYPE, currentState.origin_state.zoom);
             break;
-          case MANUFACTURING_PLACE_TYPE:
+        case MANUFACTURING_PLACE_TYPE:
             currentState.manu_state.name = d.name.split(":")[1];
             currentState.manu_state.zoom = getZoom(MANUFACTURING_PLACE_TYPE, currentState.manu_state.zoom);
             break;
-          case SELLING_PALCE_TYPE:
+        case SELLING_PLACE_TYPE:
             currentState.selling_state.name = d.name.split(":")[1];
-            currentState.selling_state.zoom = getZoom(SELLING_PALCE_TYPE, currentState.selling_state.zoom);
+            currentState.selling_state.zoom = getZoom(SELLING_PLACE_TYPE, currentState.selling_state.zoom);
             break;
-          case CATEGORIE_TYPE:
+        case CATEGORIE_TYPE:
             currentState.categorie_state.name = d.name.split(":")[1];
             currentState.categorie_state.zoom = getZoom(CATEGORIE_TYPE, currentState.categorie_state.zoom);
-        }
-        console.log(currentState)
-        // Add your left click callback logic here
-        data_to_graph_filtered(
-          {
+    }
+    console.log(currentState)
+    // Add your left click callback logic here
+    data_to_graph_filtered(
+        {
             originZoom: currentState.origin_state.zoom,
             nameOrigin: currentState.origin_state.name,
-          },
-          {
+        },
+        {
             manuZoom: currentState.manu_state.zoom,
             nameManu: currentState.manu_state.name,
-          },
-          {
+        },
+        {
             sellingZoom: currentState.selling_state.zoom,
             nameSelling: currentState.selling_state.name,
-          },
-          {
+        },
+        {
             categorieZoom: currentState.categorie_state.zoom,
             nameCategorie: currentState.categorie_state.name,
-          },
-        );
+        },
+    );
 
-        drawGraph();
-      }
+    drawGraph();
+}
 
-      function zoomOut(d) {
-        console.log("Right clicked on: ", d.name);
+function zoomOut(d) {
+    console.log("Right clicked on: ", d.name);
 
-        // dezoom
-        switch (d.type){
-          case ORIGIN_TYPE:
+    // dezoom
+    switch (d.type){
+        case ORIGIN_TYPE:
             currentState.origin_state.name = getDezoomName(ORIGIN_TYPE, currentState.origin_state.zoom, d.name.split(":")[1]);
             currentState.origin_state.zoom = getDezoom(ORIGIN_TYPE, currentState.origin_state.zoom);
             break;
-          case MANUFACTURING_PLACE_TYPE:
+        case MANUFACTURING_PLACE_TYPE:
             currentState.manu_state.name = getDezoomName(MANUFACTURING_PLACE_TYPE, currentState.manu_state.zoom, d.name.split(":")[1]);
             currentState.manu_state.zoom = getDezoom(MANUFACTURING_PLACE_TYPE, currentState.manu_state.zoom);
             break;
-          case SELLING_PALCE_TYPE:
-            currentState.selling_state.name = getDezoomName(SELLING_PALCE_TYPE, currentState.selling_state.zoom, d.name.split(":")[1]);
-            currentState.selling_state.zoom = getDezoom(SELLING_PALCE_TYPE, currentState.selling_state.zoom);
+        case SELLING_PLACE_TYPE:
+            currentState.selling_state.name = getDezoomName(SELLING_PLACE_TYPE, currentState.selling_state.zoom, d.name.split(":")[1]);
+            currentState.selling_state.zoom = getDezoom(SELLING_PLACE_TYPE, currentState.selling_state.zoom);
             break;
-          case CATEGORIE_TYPE:
+        case CATEGORIE_TYPE:
             currentState.categorie_state.name = getDezoomName(CATEGORIE_TYPE, currentState.categorie_state.zoom, d.name.split(":")[1]);
             currentState.categorie_state.zoom = getDezoom(CATEGORIE_TYPE, currentState.categorie_state.zoom);
-        }
+    }
 
-        data_to_graph_filtered(
-          {
+    data_to_graph_filtered(
+        {
             originZoom: currentState.origin_state.zoom,
             nameOrigin: currentState.origin_state.name,
-          },
-          {
+        },
+        {
             manuZoom: currentState.manu_state.zoom,
             nameManu: currentState.manu_state.name,
-          },
-          {
+        },
+        {
             sellingZoom: currentState.selling_state.zoom,
             nameSelling: currentState.selling_state.name,
-          },
-          {
+        },
+        {
             categorieZoom: currentState.categorie_state.zoom,
             nameCategorie: currentState.categorie_state.name,
-          },
-        );
+        },
+    );
 
-        drawGraph();
-      }
+    drawGraph();
+}
 
-      // function to draw the graph
-      // will update the graph with the new data
-      function drawGraph() {
-        // Empty the current canvas
-        svg.selectAll("*").remove();
+// function to draw the graph
+// will update the graph with the new data
+function drawGraph() {
+    // Empty the current canvas
+    svg.selectAll("*").remove();
 
-        // Generate the Sankey diagram
-        const { nodes: sankeyNodes, links: sankeyLinks } = sankey_({
-          nodes: nodes.map((d) => Object.assign({}, d)),
-          links: links.map((d) => Object.assign({}, d)),
-        });
+    // Generate the Sankey diagram
+    const { nodes: sankeyNodes, links: sankeyLinks } = sankey_({
+        nodes: nodes.map((d) => Object.assign({}, d)),
+        links: links.map((d) => Object.assign({}, d)),
+    });
 
-        // Set node positions based on type to separate columns
-        sankeyNodes.forEach((node) => {
-          if (node.type === PRODUCT_TYPE) {
+    // Set node positions based on type to separate columns
+    sankeyNodes.forEach((node) => {
+        if (node.type === PRODUCT_TYPE) {
             node.x0 = 0;
             node.x1 = sankey_.nodeWidth();
-          } else if (node.type === ORIGIN_TYPE) {
+        } else if (node.type === ORIGIN_TYPE) {
             node.x0 = width / 4;
             node.x1 = width / 4 + sankey_.nodeWidth();
-          } else if (node.type === MANUFACTURING_PLACE_TYPE) {
+        } else if (node.type === MANUFACTURING_PLACE_TYPE) {
             node.x0 = (2 * width) / 4;
             node.x1 = (2 * width) / 4 + sankey_.nodeWidth();
-          } else if (node.type === SELLING_PALCE_TYPE) {
+        } else if (node.type === SELLING_PLACE_TYPE) {
             node.x0 = (3 * width) / 4;
             node.x1 = (3 * width) / 4 + sankey_.nodeWidth();
-          }
-        });
+        }
+    });
 
-        // Draw links
-        svg
-          .append("g")
-          .selectAll("path")
-          .data(sankeyLinks)
-          .join("path")
-          .attr("class", "link")
-          .attr("d", d3.sankeyLinkHorizontal())
-          .attr("stroke-width", (d) => d.width)
-          .attr("stroke", (d) => {
+    // Draw links
+    svg
+        .append("g")
+        .selectAll("path")
+        .data(sankeyLinks)
+        .join("path")
+        .attr("class", "link")
+        .attr("d", d3.sankeyLinkHorizontal())
+        .attr("stroke-width", (d) => d.width)
+        .attr("stroke", (d) => {
             const continentColors = {
-              Europe: "#1f77b4",
-              Asia: "#2ca02c", // Green
-              Africa: "#ff7f0e",
-              "North America": "#d62728", // Red
-              "South America": "#9467bd",
-              Oceania: "#8c564b",
+                Europe: "#1f77b4",
+                Asia: "#2ca02c", // Green
+                Africa: "#ff7f0e",
+                "North America": "#d62728", // Red
+                "South America": "#9467bd",
+                Oceania: "#8c564b",
             };
             return continentColors[d.origin] || "#6baed6";
-          });
+        });
 
-        // Draw nodes
-        const node = svg
-          .append("g")
-          .selectAll("g")
-          .data(sankeyNodes)
-          .join("g")
-          .attr("class", "node")
-          .on("click", (event, d) => {
-            if (event.button === 0) {
-              zoomIn(d);
-            }
-          })
-          .on("contextmenu", (event, d) => {
-            zoomOut(d);
-          });
+    // Draw nodes
+    const node = svg
+        .append("g")
+        .selectAll("g")
+        .data(sankeyNodes)
+        .join("g")
+        .attr("class", "node")
+        .on("wheel", (event, d) => {
+            if (event.deltaY < 0) { zoomIn(d); }
+            else if (event.deltaY > 0) { zoomOut(d); }
+        });
 
-        node
-          .append("rect")
-          .attr("x", (d) => d.x0)
-          .attr("y", (d) => d.y0)
-          .attr("height", (d) => Math.max(1, d.y1 - d.y0))
-          .attr("width", (d) => 20)
-          .attr("fill", (d) => {
+    node
+        .append("rect")
+        .attr("x", (d) => d.x0)
+        .attr("y", (d) => d.y0)
+        .attr("height", (d) => Math.max(1, d.y1 - d.y0))
+        .attr("width", (d) => 20)
+        .attr("fill", (d) => {
             const continentColors = {
-              Europe: "#1f77b4",
-              Asia: "#2ca02c", // Green
-              Africa: "#ff7f0e",
-              "North America": "#d62728", // Red
-              "South America": "#9467bd",
-              Oceania: "#8c564b",
+                Europe: "#1f77b4",
+                Asia: "#2ca02c", // Green
+                Africa: "#ff7f0e",
+                "North America": "#d62728", // Red
+                "South America": "#9467bd",
+                Oceania: "#8c564b",
             };
             return continentColors[d.zone] || "#6baed6";
-          });
+        });
 
-        // Add labels (hidden by default, shown on hover)
-        node
-          .append("text")
-          .attr("x", (d) => d.x0 - 6)
-          .attr("y", (d) => (d.y1 + d.y0) / 2)
-          .attr("dy", "0.35em")
-          .attr("text-anchor", "end")
-          .text((d) => d.name)
-          .filter((d) => d.x0 < width / 2)
-          .attr("x", (d) => d.x1 + 6)
-          .attr("text-anchor", "start");
-      }
+    // Add labels (hidden by default, shown on hover)
+    node
+        .append("text")
+        .attr("x", (d) => d.x0 - 6)
+        .attr("y", (d) => (d.y1 + d.y0) / 2)
+        .attr("dy", "0.35em")
+        .attr("text-anchor", "end")
+        .text((d) => d.name)
+        .filter((d) => d.x0 < width / 2)
+        .attr("x", (d) => d.x1 + 6)
+        .attr("text-anchor", "start");
+}
 
-      drawGraph();
-    </script>
-  </body>
+drawGraph();
+
+        </script>
+    </body>
 </html>
