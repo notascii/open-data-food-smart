@@ -11,7 +11,7 @@ const subregions_to_countries = {
     ],
     "Africa": [
         "Congo",
-        "Saint Helena",
+        "Saint Helena and Ascension and Tristan da Cunha",
         "Tanzania"
     ],
     "Central Asia": [
@@ -41,7 +41,7 @@ const subregions_to_countries = {
     ],
     "Americas": [
         "Bolivia",
-        "Bonaire",
+        "Bonaire and Sint Eustatius and Saba",
         "Venezuela"
     ],
     "Sub-Saharan Africa": [
@@ -57,6 +57,7 @@ const subregions_to_countries = {
         "Chad",
         "Comoros",
         "Congo",
+        "Democratic Republic of the Congo",
         "C\u00f4te d'Ivoire",
         "Djibouti",
         "Equatorial Guinea",
@@ -173,8 +174,8 @@ const subregions_to_countries = {
     ],
     "Asia": [
         "Iran",
-        "Korea",
-        "Korea",
+        "North Korea",
+        "South Korea",
         "Palestine"
     ],
     "Latin America and the Caribbean": [
@@ -239,14 +240,17 @@ const subregions_to_countries = {
         "Singapore",
         "Thailand",
         "Timor-Leste",
-        "Viet Namsingapore english"
+        "Viet Nam",
+        "singapore english",
+        "Taiwan"
     ],
     "Northern America": [
         "Bermuda",
         "Canada",
         "Greenland",
         "Saint Pierre and Miquelon",
-        "United States of Americakanada"
+        "United States of America",
+        "kanada"
     ],
     "Southern Europe": [
         "Albania",
