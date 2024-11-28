@@ -4,12 +4,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sankey Diagram - Open Food Facts</title>
-    <script src="https://d3js.org/d3.v7.min.js"></script>
-    <script src="https://unpkg.com/d3-array@1"></script>
+    <script src="../vendor/d3-7.8.5/dist/d3.js"></script>
+    <script src="../vendor/d3-sankey.js"></script>
+
+    <!-- <script src="https://unpkg.com/d3-array@1"></script>
     <script src="https://unpkg.com/d3-collection@1"></script>
     <script src="https://unpkg.com/d3-path@1"></script>
     <script src="https://unpkg.com/d3-shape@1"></script>
-    <script src="https://unpkg.com/d3-sankey@0"></script>
+    <script src="https://unpkg.com/d3-sankey@0"></script> -->
     <style>
       body {
         font-family: Arial, sans-serif;
@@ -79,8 +81,7 @@
         .attr("height", height);
 
       // Create Sankey generator
-      const sankey = d3
-        .sankey()
+      const sankey_ = d3.sankey()
         .nodeWidth(20)
         .nodePadding(15)
         .size([width - 41, height - 41]);
@@ -571,7 +572,7 @@
         svg.selectAll("*").remove();
 
         // Generate the Sankey diagram
-        const { nodes: sankeyNodes, links: sankeyLinks } = sankey({
+        const { nodes: sankeyNodes, links: sankeyLinks } = sankey_({
           nodes: nodes.map((d) => Object.assign({}, d)),
           links: links.map((d) => Object.assign({}, d)),
         });
@@ -580,16 +581,16 @@
         sankeyNodes.forEach((node) => {
           if (node.type === PRODUCT_TYPE) {
             node.x0 = 0;
-            node.x1 = sankey.nodeWidth();
+            node.x1 = sankey_.nodeWidth();
           } else if (node.type === ORIGIN_TYPE) {
             node.x0 = width / 4;
-            node.x1 = width / 4 + sankey.nodeWidth();
+            node.x1 = width / 4 + sankey_.nodeWidth();
           } else if (node.type === MANUFACTURING_PLACE_TYPE) {
             node.x0 = (2 * width) / 4;
-            node.x1 = (2 * width) / 4 + sankey.nodeWidth();
+            node.x1 = (2 * width) / 4 + sankey_.nodeWidth();
           } else if (node.type === SELLING_PALCE_TYPE) {
             node.x0 = (3 * width) / 4;
-            node.x1 = (3 * width) / 4 + sankey.nodeWidth();
+            node.x1 = (3 * width) / 4 + sankey_.nodeWidth();
           }
         });
 
