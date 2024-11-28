@@ -125,58 +125,55 @@
       const ORIGIN_TYPE = "origin";
       const MANUFACTURING_PLACE_TYPE = "manu";
       const COUNTRY_TYPE = "country";
-      const ZONE_TYPES = [ORIGIN_TYPE, MANUFACTURING_PLACE_TYPE, COUNTRY_TYPE];
+      const ZONE_TYPES = [ORIGIN_TYPE, MANUFACTURING_PLACE_TYPE, COUNTRY_TYPE]; 
 
-      // adding Nodes
-      Object.keys(regions_to_countries).forEach((zone) => {
-        console.log(zone)
-        ZONE_TYPES.forEach((type) => {
-          addNode(zone, type);
+
+      function data_to_graph_filtered() {
+        nodes.length = 0;
+        links.length = 0;
+
+        // adding Nodes
+        Object.keys(regions_to_countries).forEach((zone) => {
+          console.log(zone)
+          ZONE_TYPES.forEach((type) => {
+            addNode(zone, type);
+          });
         });
-      });
-
-      nodes.forEach((node) =>{
-        console.log(node);
-      })
-
-      console.log(nodeIndexMap)
-
-      products.map((product) => {
-
-        if (!product.product_name) return;
-        if (!product.origins_tags_std) return;
-        if (!product.manufacturing_places_tags_std) return;
-        if (!product.countries_tags_std) return;
-                
-        //addNode(product.product_name, PRODUCT_TYPE);
 
 
-        // adding Links
+        products.map((product) => {
 
-        //product.origins_tags_std.forEach((origin) => {
-        //  addLink(product.product_name, PRODUCT_TYPE, origin, ORIGIN_TYPE);
-        //});
+          if (!product.product_name) return;
+          if (!product.origins_tags_std) return;
+          if (!product.manufacturing_places_tags_std) return;
+          if (!product.countries_tags_std) return;
+                  
+          //addNode(product.product_name, PRODUCT_TYPE);
 
-        product.origins_tags_std.forEach((origin) =>{ 
+          // adding Links
+
+          //product.origins_tags_std.forEach((origin) => {
+          //  addLink(product.product_name, PRODUCT_TYPE, origin, ORIGIN_TYPE);
+          //});
+
+          product.origins_tags_std.forEach((origin) =>{ 
+            product.manufacturing_places_tags_std.forEach((manu) =>{
+              addLink(countries_to_regions[origin], ORIGIN_TYPE, countries_to_regions[manu], MANUFACTURING_PLACE_TYPE);
+            });
+          });
+
           product.manufacturing_places_tags_std.forEach((manu) =>{
-            if(!countries_to_regions[origin]){
-              console.log(origin);
-            }
-            addLink(countries_to_regions[origin], ORIGIN_TYPE, countries_to_regions[manu], MANUFACTURING_PLACE_TYPE);
+            product.countries_tags_std.forEach((country) =>{
+              addLink(countries_to_regions[manu], MANUFACTURING_PLACE_TYPE, countries_to_regions[country], COUNTRY_TYPE);
+            });
           });
+
         });
+      }
 
-        product.manufacturing_places_tags_std.forEach((manu) =>{
-          product.countries_tags_std.forEach((country) =>{
+      
 
-
-            addLink(countries_to_regions[manu], MANUFACTURING_PLACE_TYPE, countries_to_regions[country], COUNTRY_TYPE);
-          });
-        });
-
-      });
-
-
+      data_to_graph_filtered();
 
       // Generate the Sankey diagram
       const { nodes: sankeyNodes, links: sankeyLinks } = sankey({
