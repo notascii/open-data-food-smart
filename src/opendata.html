@@ -29,7 +29,7 @@
         }
         #group{
             display:flex;
-            width:80%;
+            width:65%;
             font-weight: bold;
         }
 
@@ -61,6 +61,24 @@
             margin-left: 18%;
             position: relative;
         }
+        .legend {
+            position: absolute;
+            left: 50%;
+            transform: translate(-50%, 0);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .text-column {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            transition: transform 0.3s ease;
+            font-weight: bold;
+        }
         /* .node text {
             display: none;
         }
@@ -71,11 +89,17 @@
 </head>
 <body>
     <h1 align="center">Sankey Diagram - Open Food Facts</h1>
-    <div id="group">
+    <!-- <div id="group">
         <div id="divbox1">Origin</div>
         <div id="divbox2">Manufacturing</div>
         <div id="divbox3">Selling Place</div>
         <div id="divbox4">Product Category</div>
+    </div> -->
+    <div class="legend">
+        <div id="text1" class="text-column" style="transform: translate(-380px, 0px);">Origin</div>
+        <div id="text2" class="text-column" style="transform: translate(-80px, 0px);">Manufacturing</div>
+        <div id="text3" class="text-column" style="transform: translate(180px, 0px);">Selling Places</div>
+        <div id="text4" class="text-column" style="transform: translate(380px, 0px);">Products Categories</div>
     </div>
     <!-- <div style="margin-left: 650px;">Manufacturing</div>
     <div style="margin-left: 1000px;">Selling Place</div>
@@ -95,14 +119,14 @@
     <script>
 // Set up the SVG container
 var margin = {
-    top: 10,
+    top: 100,
     right: 10,
     bottom: 10,
     left: 10
 };
 
-const width = 1400 - margin.left - margin.right;
-const height = 700 - margin.top - margin.bottom;
+const width = 1700 - margin.left - margin.right;
+const height = 900 - margin.top - margin.bottom;
 
 const svg = d3
     .select("#sankey-container")
@@ -113,6 +137,14 @@ const svg = d3
             "translate(" + margin.left + "," + margin.top + ")"
     );
 
+const legend = d3.select("#legend");
+
+for (const [i, label] of Array.from(["Origins", "Manufacturing", "Selling Places", "Products Categories"]).entries()) {                                                                                                                                           
+    legend.append("text")
+        .attr("transform", `translate(${65 + 200 * i}px, 40px)`)
+        // .attr("text-anchor", "start")
+        .text(`${label}`);
+}
 
 // Create Sankey generator
 const sankey_ = d3.sankey()
