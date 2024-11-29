@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0" /> -->
     <title>Sankey Diagram - Open Food Facts</title>
     <script src="../vendor/d3-7.8.5/dist/d3.js"></script>
     <script src="../vendor/d3-sankey.js"></script>
@@ -11,6 +11,8 @@
     <style>
         body {
             font-family: Arial, sans-serif;
+            height: 100%;
+            overflow-y: hidden;
         }
         #sankey-container {
             width: 100%;
@@ -25,6 +27,40 @@
             fill: none;
             stroke-opacity: 0.7;
         }
+        #group{
+            display:flex;
+            width:80%;
+            font-weight: bold;
+        }
+
+        #divbox1{
+            flex:4;
+            margin-top: 7%;
+            margin-left: 25%;
+            position: relative;
+        }
+
+        #divbox2{
+            flex:6;
+            margin-top: 7%;
+            margin-left: 19%;
+            margin-right: auto;
+            position: relative;
+        }
+
+        #divbox3{
+            flex:6;
+            margin-top: 6%;
+            margin-left: 19%;
+            position: relative;
+        }
+
+        #divbox4{
+            flex:4;
+            margin-top: 6%;
+            margin-left: 18%;
+            position: relative;
+        }
         /* .node text {
             display: none;
         }
@@ -35,19 +71,28 @@
 </head>
 <body>
     <h1 align="center">Sankey Diagram - Open Food Facts</h1>
+    <div id="group">
+        <div id="divbox1">Origin</div>
+        <div id="divbox2">Manufacturing</div>
+        <div id="divbox3">Selling Place</div>
+        <div id="divbox4">Product Category</div>
+    </div>
+    <!-- <div style="margin-left: 650px;">Manufacturing</div>
+    <div style="margin-left: 1000px;">Selling Place</div>
+    <div style="margin-left: 1300px;">Product Category</div> -->
     <div id="sankey-container"></div>
-        <script src="data/countries_to_regions_table.js" type="text/javascript"></script>
-        <script src="data/countries_to_subregions_table.js" type="text/javascript"></script>
-        <script src="data/subregions_to_regions_table.js" type="text/javascript"></script>
-        <script src="data/subregions_to_countries_table.js" type="text/javascript"></script>
-        <script src="data/regions_to_countries_table.js" type="text/javascript"></script>
-        <script src="data/regions_to_subregions_table.js" type="text/javascript"></script>
-        <script src="data/g2_to_g1.js" type="text/javascript"></script>
-        <script src="data/g1_to_g2.js" type="text/javascript"></script>
-        <script src="data/color_mapping.js" type="text/javascript"></script>
-        <script src="data/clean_data.js" type="text/javascript"></script>
+    <script src="data/countries_to_regions_table.js" type="text/javascript"></script>
+    <script src="data/countries_to_subregions_table.js" type="text/javascript"></script>
+    <script src="data/subregions_to_regions_table.js" type="text/javascript"></script>
+    <script src="data/subregions_to_countries_table.js" type="text/javascript"></script>
+    <script src="data/regions_to_countries_table.js" type="text/javascript"></script>
+    <script src="data/regions_to_subregions_table.js" type="text/javascript"></script>
+    <script src="data/g2_to_g1.js" type="text/javascript"></script>
+    <script src="data/g1_to_g2.js" type="text/javascript"></script>
+    <script src="data/color_mapping.js" type="text/javascript"></script>
+    <script src="data/clean_data.js" type="text/javascript"></script>
 
-        <script>
+    <script>
 // Set up the SVG container
 var margin = {
     top: 10,
@@ -68,11 +113,12 @@ const svg = d3
             "translate(" + margin.left + "," + margin.top + ")"
     );
 
+
 // Create Sankey generator
 const sankey_ = d3.sankey()
     .nodeWidth(20)
     .nodePadding(15)
-    .size([width - margin.right, height - margin.top])
+    .size([width - margin.right, height - margin.top - 50])
 
 let nodeIndex = 0;
 const nodes = [];
@@ -634,6 +680,6 @@ function drawGraph() {
 
 drawGraph();
 
-        </script>
-    </body>
+    </script>
+</body>
 </html>
